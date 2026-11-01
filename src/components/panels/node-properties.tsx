@@ -7,6 +7,7 @@ import { cn, isSafeUrl } from '@/lib/utils'
 import { describeCondition, needsValue, OPERATOR_LABELS } from '@/lib/workflow-engine/conditions'
 import { outgoingEdges } from '@/lib/workflow-engine/graph'
 import { useProjectStore } from '@/stores/project-store'
+import { SourceDetails } from './source-details'
 import { ValueInput } from './value-input'
 
 function TypeBadge({ node }: { node: WorkflowNode }) {
@@ -62,6 +63,8 @@ export function NodeProperties({ node, workflow }: { node: WorkflowNode; workflo
           onChange={(e) => patch({ notes: e.target.value })}
         />
       </Field>
+
+      <SourceDetails node={node} />
 
       <section>
         <div className="mb-1.5 flex items-center justify-between">

@@ -1,6 +1,7 @@
 import {
   ChevronDown,
   ChevronRight,
+  Clipboard,
   Copy,
   Download,
   Moon,
@@ -10,13 +11,19 @@ import {
   Sun,
   Trash2,
   Upload,
+  FilePlus2,
+  FolderOpen,
+  Save,
   Workflow as WorkflowIcon,
 } from 'lucide-react'
 import { useRef, useState, type KeyboardEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog, type ConfirmRequest } from '@/components/ui/confirm-dialog'
 import { downloadProject, parseProject } from '@/lib/storage/project-storage'
+import { createAiInstruction } from '@/lib/storage/ai-instruction'
+import { ImportFromTextDialog } from '@/components/panels/import-from-text-dialog'
 import { cn } from '@/lib/utils'
+import { isVsCodeWebview, postHostMessage } from '@/lib/vscode/bridge'
 import { useProjectStore } from '@/stores/project-store'
 import { useUiStore } from '@/stores/ui-store'
 
@@ -152,11 +159,17 @@ export function Sidebar() {
   const [editing, setEditing] = useState<string | null>(null)
   const [renamingProject, setRenamingProject] = useState(false)
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null)
+  const [textImportOpen, setTextImportOpen] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const { project, activeWorkflowId, activeUseCaseIds, saveStatus } = store
+  const { extensionActive, fileName, fileDirty } = useUiStore()
 
   const onImportFile = async (file: File | undefined) => {
     if (!file) return
+    if (isVsCodeWebview) {
+      postHostMessage({ type: 'importWorkflow' })
+      return
+    }
     const result = parseProject(await file.text())
     if (!result.ok) {
       setNotice({ kind: 'error', message: `Import failed. ${result.error}` })
@@ -324,22 +337,128 @@ export function Sidebar() {
       </nav>
 
       <div className="flex items-center gap-1 border-t px-2 py-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => downloadProject(project)}
-          title="Export project as JSON"
-        >
-          <Download className="size-3.5" /> Export
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => fileRef.current?.click()}
-          title="Import project from JSON"
-        >
-          <Upload className="size-3.5" /> Import
-        </Button>
+        {extensionActive && (
+          <div className="grid w-full grid-cols-3 gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => postHostMessage({ type: 'openWorkflow' })}
+              title="Open workflow JSON"
+            >
+              <FolderOpen className="size-3.5" /> Open
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => postHostMessage({ type: 'saveWorkflow' })}
+              title="Save current workflow JSON"
+            >
+              <Save className="size-3.5" /> Save
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => postHostMessage({ type: 'saveWorkflowAs' })}
+              title="Save as a new workflow JSON file"
+            >
+              <FilePlus2 className="size-3.5" /> Save as
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => postHostMessage({ type: 'exportWorkflow' })}
+              title="Export project as JSON"
+            >
+              <Download className="size-3.5" /> Export
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => postHostMessage({ type: 'importWorkflow' })}
+              title="Import project from JSON"
+            >
+              <Upload className="size-3.5" /> Import
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setTextImportOpen(true)}
+              title="Import project JSON from text"
+            >
+              <Clipboard className="size-3.5" /> From text
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="col-span-3"
+              onClick={() => {
+                void navigator.clipboard.writeText(createAiInstruction()).then(
+                  () =>
+                    useUiStore
+                      .getState()
+                      .setNotice({ kind: 'info', message: 'AI instruction copied to the clipboard.' }),
+                  () =>
+                    useUiStore.getState().setNotice({
+                      kind: 'error',
+                      message: 'Could not copy the AI instruction to the clipboard.',
+                    }),
+                )
+              }}
+              title="Copy an instruction for an external AI coding agent"
+            >
+              <Clipboard className="size-3.5" /> Copy AI Instruction
+            </Button>
+          </div>
+        )}
+        {!extensionActive && (
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => downloadProject(project)}
+              title="Export project as JSON"
+            >
+              <Download className="size-3.5" /> Export
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => fileRef.current?.click()}
+              title="Import project from JSON"
+            >
+              <Upload className="size-3.5" /> Import
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setTextImportOpen(true)}
+              title="Import project JSON from text"
+            >
+              <Clipboard className="size-3.5" /> Text
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                void navigator.clipboard.writeText(createAiInstruction()).then(
+                  () =>
+                    useUiStore
+                      .getState()
+                      .setNotice({ kind: 'info', message: 'AI instruction copied to the clipboard.' }),
+                  () =>
+                    useUiStore.getState().setNotice({
+                      kind: 'error',
+                      message: 'Could not copy the AI instruction to the clipboard.',
+                    }),
+                )
+              }}
+              title="Copy AI Instruction"
+              aria-label="Copy AI Instruction"
+            >
+              <Clipboard className="size-4" />
+            </Button>
+          </>
+        )}
         <input
           ref={fileRef}
           type="file"
@@ -354,13 +473,24 @@ export function Sidebar() {
         />
         <span
           className={cn(
-            'ml-auto mr-1 text-[11px]',
-            saveStatus === 'error' ? 'text-danger' : 'text-muted-foreground',
+            'ml-auto mr-1 max-w-24 truncate text-[11px]',
+            saveStatus === 'error' || fileDirty ? 'text-warning' : 'text-muted-foreground',
           )}
           role="status"
           data-testid="save-status"
+          title={
+            extensionActive
+              ? `${fileName ?? 'No file open'}${fileDirty ? ' — unsaved changes' : ''}`
+              : undefined
+          }
         >
-          {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'error' ? 'Not saved' : 'Saved'}
+          {extensionActive
+            ? `${fileName ?? 'No file'}${fileDirty ? ' •' : ''}`
+            : saveStatus === 'saving'
+              ? 'Saving…'
+              : saveStatus === 'error'
+                ? 'Not saved'
+                : 'Saved'}
         </span>
         <Button
           variant="ghost"
@@ -373,6 +503,16 @@ export function Sidebar() {
         </Button>
       </div>
       <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />
+      {textImportOpen && (
+        <ImportFromTextDialog
+          onClose={() => setTextImportOpen(false)}
+          onImport={(incoming) => {
+            store.replaceProject(incoming)
+            setTextImportOpen(false)
+            setNotice({ kind: 'info', message: `Imported "${incoming.project.name}".` })
+          }}
+        />
+      )}
     </aside>
   )
 }
