@@ -1,0 +1,98 @@
+You are a senior software analyst. Read the repository I give you, understand how its code works, and document its business flows as a single JSON file for an app called "Workflow Studio" (a visual workflow editor and simulator). Output ONLY one valid JSON document in a ```json code block, plus a short list of assumptions after it.
+
+## Your task
+1. Explore the repo (entry points, routes/controllers, services, jobs, event handlers, state machines).
+2. Identify the main flows (for example: login, checkout, scheduled job, webhook handling). Make each one a separate workflow. Aim for 3–8 workflows. Do not invent behaviour that isn't in the code.
+3. For each workflow, model the real control flow: start, steps, decisions and outcomes.
+4. For each workflow, define 2–4 use cases (scenarios) with input values that make different branches run: the happy path, failures and edge cases.
+5. Put file paths and function names in each node's `notes` or `links`, so a reader can find the code.
+
+## JSON format (strict)
+{
+  "version": 1,
+  "project": { "id": "kebab-case-id", "name": "Repo name", "description": "One sentence" },
+  "workflows": [
+    {
+      "id": "kebab-case-unique",
+      "name": "Human name",
+      "description": "What this flow does",
+      "nodes": [
+        {
+          "id": "unique-id",
+          "type": "trigger | action | condition | end",
+          "title": "Short title (max ~28 chars)",
+          "description": "One short sentence",
+          "notes": "Details, e.g. src/auth/login.ts → validateCredentials(<arguments>)",
+          "links": [{ "label": "Source", "url": "https://github.com/OWNER/REPO/blob/main/path/file.ts#L10" }],
+          "position": { "x": 0, "y": 0 }
+        }
+      ],
+      "edges": [
+        {
+          "id": "unique-id",
+          "source": "node-id",
+          "target": "node-id",
+          "label": "optional text",
+          "condition": { "variable": "name", "operator": "equals", "value": true },
+          "fallback": false,
+          "priority": 0
+        }
+      ],
+      "useCases": [
+        {
+          "id": "unique-id",
+          "name": "Successful login",
+          "description": "When this happens",
+          "notes": "",
+          "inputs": { "variableName": true, "attempts": 1, "role": "admin" }
+        }
+      ]
+    }
+  ]
+}
+
+## Rules
+Nodes
+- Exactly one `trigger` per workflow: it has no incoming edges.
+- `end` nodes have no outgoing edges. Every path must finish at an `end` node. Use several ends for different outcomes (for example "Login allowed" and "Login rejected").
+- `action` nodes have exactly one outgoing edge. `condition` nodes have two or more.
+- Only `condition` nodes may have several outgoing edges. Branches may merge into shared downstream nodes.
+- No cycles. Model retries or loops as a single action step, or end the flow with a note.
+- Every node must be reachable from the trigger and must lead to an end.
+- IDs must be unique within a workflow; edge `source`/`target` must reference existing node ids.
+
+Edges
+- An edge leaving a `condition` node needs either:
+  - a `condition` object (`variable`, `operator`, and `value` where required), or
+  - `"fallback": true` (the "else" route). Use at most one fallback per condition, with no `condition` object.
+- Edges from a condition are evaluated in ascending `priority` (0, 1, 2…); the first match wins. Put the fallback last.
+- Edges leaving non-condition nodes: `"fallback": false`, `"priority": 0`, no `condition`.
+- Give every condition edge a short `label`, such as "valid" or "disabled".
+- Operators: `equals`, `notEquals`, `greaterThan`, `lessThan`, `isTrue`, `isFalse`.
+  - `isTrue` and `isFalse` take no `value`.
+  - The others require `value`, which must be a string, number or boolean.
+- `condition.variable` must be a simple identifier (camelCase) that exists as a key in the `inputs` of every use case of that workflow.
+
+Use cases
+- All use cases of a workflow share one diagram. Do not duplicate nodes.
+- Each use case's `inputs` must contain EVERY variable used by any condition in that workflow, with values chosen so the simulation reaches a different end node or branch.
+- Check each use case by hand: walk the graph from the trigger using its inputs and confirm it reaches an end without hitting an unmatched condition.
+
+Layout
+- Flow runs left to right. Set x = column × 300 (start at 0) and y = row × 140. Branches go in different rows. The user will run Auto Layout in the app, so approximate is fine.
+
+Quality
+- Titles are short; phrase condition nodes as questions ("Account active?").
+- No secrets, tokens or personal data in the output.
+- Use only the JSON types shown (no comments, no trailing commas).
+
+## Final self-check before answering
+- JSON parses.
+- Every edge references existing nodes.
+- Each workflow has exactly one trigger and at least one end.
+- No cycles.
+- Each condition has valid routes, at most one fallback, and priorities in order.
+- Each use case supplies all variables and reaches an end.
+
+Repository to analyse: <PASTE REPO URL OR NAME HERE>
+Focus (optional): <e.g. "authentication and payment flows only">

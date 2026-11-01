@@ -1,0 +1,884 @@
+{
+  "version": 1,
+  "project": {
+    "id": "hello-butler-client",
+    "name": "Hello Butler",
+    "description": "Android daily-event scheduling, due-time execution, and independent audio preparation, based on repository main."
+  },
+  "workflows": [
+    {
+      "id": "event-scheduling",
+      "name": "Daily Event Scheduling",
+      "description": "Reconciles event changes and registers an exact alarm or WorkManager fallback for eligible spoken events and reminders.",
+      "nodes": [
+        {
+          "id": "schedule-start",
+          "type": "trigger",
+          "title": "Event reconciled",
+          "description": "An event is created, updated, synchronized, or restored.",
+          "notes": "DailyEventRepository.kt → update(), queue(), synchronize(); DailyEventScheduler.kt → reconcile(), schedule().",
+          "links": [
+            {
+              "label": "Repository",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/data/repository/DailyEventRepository.kt"
+            }
+          ],
+          "position": { "x": 0, "y": 0 }
+        },
+        {
+          "id": "schedule-eligible",
+          "type": "condition",
+          "title": "Eligible to schedule?",
+          "description": "Checks planned status, trigger time, speech eligibility, content, and playback state.",
+          "notes": "DailyEventScheduler.kt → schedule(). Events without speakAloud are excluded unless eventType is reminder. A missing trigger, empty content, terminal status, or prior playback attempt also excludes the event.",
+          "links": [
+            {
+              "label": "Scheduler",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt"
+            }
+          ],
+          "position": { "x": 300, "y": 0 }
+        },
+        {
+          "id": "schedule-due",
+          "type": "condition",
+          "title": "Trigger time passed?",
+          "description": "Determines whether the event is due or still in the future.",
+          "notes": "DailyEventScheduler.kt → schedule(), triggerAtMillis(). Reminders subtract reminderMinutesBefore from their start time.",
+          "links": [
+            {
+              "label": "Scheduler",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt"
+            }
+          ],
+          "position": { "x": 600, "y": 0 }
+        },
+        {
+          "id": "schedule-still-due",
+          "type": "condition",
+          "title": "Still due today?",
+          "description": "Checks whether an already-due occurrence remains valid for speech.",
+          "notes": "DailyEventScheduler.kt → isDueForSpeech(). The event must belong to the current local date and remain unclaimed.",
+          "links": [
+            {
+              "label": "Scheduler",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt"
+            }
+          ],
+          "position": { "x": 900, "y": 0 }
+        },
+        {
+          "id": "schedule-exact",
+          "type": "condition",
+          "title": "Exact alarm allowed?",
+          "description": "Checks whether Android permits exact alarm registration.",
+          "notes": "DailyEventScheduler.kt → schedule(). Uses AlarmManager.canScheduleExactAlarms() on Android S and newer.",
+          "links": [
+            {
+              "label": "Scheduler",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt"
+            }
+          ],
+          "position": { "x": 900, "y": 280 }
+        },
+        {
+          "id": "schedule-alarm",
+          "type": "action",
+          "title": "Register exact alarm",
+          "description": "Registers a wake-up alarm with event ID, version, and trigger time.",
+          "notes": "DailyEventScheduler.kt → alarmPendingIntent(), AlarmManager.setExactAndAllowWhileIdle(). If registration throws, the implementation enqueues DailyEventExecutionWorker instead.",
+          "links": [
+            {
+              "label": "Scheduler",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt"
+            }
+          ],
+          "position": { "x": 1200, "y": 140 }
+        },
+        {
+          "id": "schedule-worker",
+          "type": "action",
+          "title": "Enqueue fallback work",
+          "description": "Registers a version-bound WorkManager execution request.",
+          "notes": "DailyEventExecution.kt → DailyEventExecutionWorker.enqueue(). Uses unique work with ExistingWorkPolicy.REPLACE.",
+          "links": [
+            {
+              "label": "Execution",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt"
+            }
+          ],
+          "position": { "x": 1200, "y": 420 }
+        },
+        {
+          "id": "schedule-cancel",
+          "type": "action",
+          "title": "Cancel registration",
+          "description": "Cancels existing alarm, worker, and deferred notification.",
+          "notes": "DailyEventScheduler.kt → cancel().",
+          "links": [
+            {
+              "label": "Scheduler",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt"
+            }
+          ],
+          "position": { "x": 900, "y": -280 }
+        },
+        {
+          "id": "schedule-end-cancel",
+          "type": "end",
+          "title": "Not scheduled",
+          "description": "No active scheduled execution remains for this event.",
+          "notes": "DailyEventScheduler.kt → cancel().",
+          "links": [],
+          "position": { "x": 1500, "y": -280 }
+        },
+        {
+          "id": "schedule-end-alarm",
+          "type": "end",
+          "title": "Alarm registered",
+          "description": "The event will enter the alarm receiver when Android delivers the alarm.",
+          "notes": "DailyEventAlarmReceiver.onReceive() is the downstream entry point.",
+          "links": [],
+          "position": { "x": 1500, "y": 140 }
+        },
+        {
+          "id": "schedule-end-worker",
+          "type": "end",
+          "title": "Worker registered",
+          "description": "WorkManager will attempt notification-based execution.",
+          "notes": "DailyEventExecutionWorker.doWork() is the downstream entry point.",
+          "links": [],
+          "position": { "x": 1500, "y": 420 }
+        }
+      ],
+      "edges": [
+        {
+          "id": "se-1",
+          "source": "schedule-start",
+          "target": "schedule-eligible",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "se-2",
+          "source": "schedule-eligible",
+          "target": "schedule-due",
+          "label": "eligible",
+          "condition": { "variable": "eligible", "operator": "isTrue" },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "se-3",
+          "source": "schedule-eligible",
+          "target": "schedule-cancel",
+          "label": "ineligible",
+          "fallback": true,
+          "priority": 1
+        },
+        {
+          "id": "se-4",
+          "source": "schedule-due",
+          "target": "schedule-still-due",
+          "label": "due or past",
+          "condition": { "variable": "triggerPassed", "operator": "isTrue" },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "se-5",
+          "source": "schedule-due",
+          "target": "schedule-exact",
+          "label": "future",
+          "fallback": true,
+          "priority": 1
+        },
+        {
+          "id": "se-6",
+          "source": "schedule-still-due",
+          "target": "schedule-worker",
+          "label": "valid today",
+          "condition": { "variable": "stillDue", "operator": "isTrue" },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "se-7",
+          "source": "schedule-still-due",
+          "target": "schedule-cancel",
+          "label": "expired",
+          "fallback": true,
+          "priority": 1
+        },
+        {
+          "id": "se-8",
+          "source": "schedule-exact",
+          "target": "schedule-alarm",
+          "label": "allowed",
+          "condition": { "variable": "exactAlarmAllowed", "operator": "isTrue" },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "se-9",
+          "source": "schedule-exact",
+          "target": "schedule-worker",
+          "label": "not allowed",
+          "fallback": true,
+          "priority": 1
+        },
+        {
+          "id": "se-10",
+          "source": "schedule-cancel",
+          "target": "schedule-end-cancel",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "se-11",
+          "source": "schedule-alarm",
+          "target": "schedule-end-alarm",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "se-12",
+          "source": "schedule-worker",
+          "target": "schedule-end-worker",
+          "fallback": false,
+          "priority": 0
+        }
+      ],
+      "useCases": [
+        {
+          "id": "sc-1",
+          "name": "Future event with speech",
+          "description": "A planned spoken event has a future trigger and exact alarm permission.",
+          "notes": "Expected: Alarm registered.",
+          "inputs": {
+            "eligible": true,
+            "triggerPassed": false,
+            "stillDue": false,
+            "exactAlarmAllowed": true
+          }
+        },
+        {
+          "id": "sc-2",
+          "name": "Ordinary silent event",
+          "description": "A planned non-reminder event has speakAloud disabled.",
+          "notes": "Expected: Not scheduled. The existing scheduler does not provide a generic silent-event notification path.",
+          "inputs": {
+            "eligible": false,
+            "triggerPassed": false,
+            "stillDue": false,
+            "exactAlarmAllowed": true
+          }
+        },
+        {
+          "id": "sc-3",
+          "name": "Exact alarm unavailable",
+          "description": "An eligible future event must use WorkManager.",
+          "notes": "Expected: Worker registered.",
+          "inputs": {
+            "eligible": true,
+            "triggerPassed": false,
+            "stillDue": false,
+            "exactAlarmAllowed": false
+          }
+        },
+        {
+          "id": "sc-4",
+          "name": "Past event expired",
+          "description": "An old event is no longer due on the current date.",
+          "notes": "Expected: Not scheduled.",
+          "inputs": {
+            "eligible": true,
+            "triggerPassed": true,
+            "stillDue": false,
+            "exactAlarmAllowed": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "event-due-execution",
+      "name": "Due Event Execution",
+      "description": "Handles a delivered alarm or fallback worker, validates the occurrence, offers a notification, and optionally starts automatic speech.",
+      "nodes": [
+        {
+          "id": "due-start",
+          "type": "trigger",
+          "title": "Scheduled trigger fires",
+          "description": "Android delivers an alarm or WorkManager executes its fallback task.",
+          "notes": "DailyEventExecution.kt → DailyEventAlarmReceiver.onReceive(), DailyEventExecutionWorker.doWork().",
+          "links": [
+            {
+              "label": "Execution",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt"
+            }
+          ],
+          "position": { "x": 0, "y": 0 }
+        },
+        {
+          "id": "due-load",
+          "type": "action",
+          "title": "Load event from Room",
+          "description": "Reads the latest persisted event using its ID.",
+          "notes": "DailyEventAlarmReceiver.onReceive() and DailyEventExecutionWorker.doWork() → dailyEventDao().get(eventId).",
+          "links": [
+            {
+              "label": "Execution",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt"
+            }
+          ],
+          "position": { "x": 300, "y": 0 }
+        },
+        {
+          "id": "due-valid",
+          "type": "condition",
+          "title": "Occurrence valid?",
+          "description": "Rejects deleted, obsolete, non-due, or already attempted events.",
+          "notes": "DailyEventScheduler.kt → isDueForSpeech(), matchesAlarm(). Validates event version and trigger identity.",
+          "links": [
+            {
+              "label": "Scheduler",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt"
+            }
+          ],
+          "position": { "x": 600, "y": 0 }
+        },
+        {
+          "id": "due-offer",
+          "type": "action",
+          "title": "Offer event playback",
+          "description": "Checks current session and event state before publishing a deferred Listen notification.",
+          "notes": "DailyEventRepository.kt → offerEventPlayback(). The method uses audioStateMutex and checks local preparedSpeech() without downloading audio. DeferredSpeechNotification.show() presents Listen or Prepare & Listen.",
+          "links": [
+            {
+              "label": "Repository",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/data/repository/DailyEventRepository.kt"
+            }
+          ],
+          "position": { "x": 900, "y": 0 }
+        },
+        {
+          "id": "due-offer-result",
+          "type": "condition",
+          "title": "Offer accepted?",
+          "description": "Checks whether the notification offer completed or was unnecessary.",
+          "notes": "offerEventPlayback() returns true for a successful publication or an obsolete or unauthorized occurrence. A false result triggers worker retry or fallback enqueue.",
+          "links": [
+            {
+              "label": "Repository",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/data/repository/DailyEventRepository.kt"
+            }
+          ],
+          "position": { "x": 1200, "y": 0 }
+        },
+        {
+          "id": "due-origin",
+          "type": "condition",
+          "title": "Exact alarm path?",
+          "description": "Distinguishes an alarm receiver from delayed worker execution.",
+          "notes": "DailyEventExecution.kt. The worker deliberately avoids starting automatic foreground playback from the background.",
+          "links": [
+            {
+              "label": "Execution",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt"
+            }
+          ],
+          "position": { "x": 1500, "y": 0 }
+        },
+        {
+          "id": "due-preference",
+          "type": "condition",
+          "title": "Auto speech allowed?",
+          "description": "Checks the sound and voice preference for this event workflow.",
+          "notes": "DailyEventAlarmReceiver.onReceive() → soundVoice.state.value.allows(AudioWorkflows.forEvent(event.eventType)).",
+          "links": [
+            {
+              "label": "Execution",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt"
+            }
+          ],
+          "position": { "x": 1800, "y": 0 }
+        },
+        {
+          "id": "due-play",
+          "type": "action",
+          "title": "Request auto playback",
+          "description": "Starts the shared playback service for the captured event occurrence.",
+          "notes": "DailyEventAlarmReceiver.onReceive() → ButlerAudioPlaybackService.playEvent(automatic = true, expectedVersion, expectedTrigger). IllegalStateException and SecurityException cause fallback worker enqueue.",
+          "links": [
+            {
+              "label": "Playback service",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/ButlerAudioPlaybackService.kt"
+            }
+          ],
+          "position": { "x": 2100, "y": 0 }
+        },
+        {
+          "id": "due-retry",
+          "type": "action",
+          "title": "Queue retry worker",
+          "description": "Schedules or retries the notification offer without starting background playback.",
+          "notes": "DailyEventExecutionWorker.enqueue() or Result.retry() in doWork(). Retry scheduling is collapsed into one node to avoid a graph cycle.",
+          "links": [
+            {
+              "label": "Execution",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt"
+            }
+          ],
+          "position": { "x": 1500, "y": 420 }
+        },
+        {
+          "id": "due-end-ignored",
+          "type": "end",
+          "title": "Occurrence ignored",
+          "description": "The scheduled occurrence no longer qualifies for execution.",
+          "notes": "The receiver returns or the worker reports success without presenting playback.",
+          "links": [],
+          "position": { "x": 900, "y": -280 }
+        },
+        {
+          "id": "due-end-offered",
+          "type": "end",
+          "title": "Manual action offered",
+          "description": "Automatic speech is not requested; a valid notification offer remains available.",
+          "notes": "For ready local audio the notification offers Listen; otherwise Prepare & Listen. Actual notification visibility depends on Android permissions.",
+          "links": [],
+          "position": { "x": 2400, "y": 280 }
+        },
+        {
+          "id": "due-end-play",
+          "type": "end",
+          "title": "Playback requested",
+          "description": "The shared service has been asked to handle automatic playback.",
+          "notes": "This does not guarantee audible completion; the service performs further validation and claims.",
+          "links": [],
+          "position": { "x": 2400, "y": 0 }
+        },
+        {
+          "id": "due-end-retry",
+          "type": "end",
+          "title": "Retry queued",
+          "description": "A later worker attempt will reevaluate the event.",
+          "notes": "DailyEventExecutionWorker.",
+          "links": [],
+          "position": { "x": 1800, "y": 420 }
+        }
+      ],
+      "edges": [
+        {
+          "id": "de-1",
+          "source": "due-start",
+          "target": "due-load",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "de-2",
+          "source": "due-load",
+          "target": "due-valid",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "de-3",
+          "source": "due-valid",
+          "target": "due-offer",
+          "label": "valid",
+          "condition": { "variable": "occurrenceValid", "operator": "isTrue" },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "de-4",
+          "source": "due-valid",
+          "target": "due-end-ignored",
+          "label": "stale or invalid",
+          "fallback": true,
+          "priority": 1
+        },
+        {
+          "id": "de-5",
+          "source": "due-offer",
+          "target": "due-offer-result",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "de-6",
+          "source": "due-offer-result",
+          "target": "due-origin",
+          "label": "accepted",
+          "condition": { "variable": "offerAccepted", "operator": "isTrue" },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "de-7",
+          "source": "due-offer-result",
+          "target": "due-retry",
+          "label": "retry required",
+          "fallback": true,
+          "priority": 1
+        },
+        {
+          "id": "de-8",
+          "source": "due-origin",
+          "target": "due-preference",
+          "label": "alarm",
+          "condition": { "variable": "exactAlarmPath", "operator": "isTrue" },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "de-9",
+          "source": "due-origin",
+          "target": "due-end-offered",
+          "label": "worker",
+          "fallback": true,
+          "priority": 1
+        },
+        {
+          "id": "de-10",
+          "source": "due-preference",
+          "target": "due-play",
+          "label": "enabled",
+          "condition": { "variable": "autoSpeechAllowed", "operator": "isTrue" },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "de-11",
+          "source": "due-preference",
+          "target": "due-end-offered",
+          "label": "disabled",
+          "fallback": true,
+          "priority": 1
+        },
+        {
+          "id": "de-12",
+          "source": "due-play",
+          "target": "due-end-play",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "de-13",
+          "source": "due-retry",
+          "target": "due-end-retry",
+          "fallback": false,
+          "priority": 0
+        }
+      ],
+      "useCases": [
+        {
+          "id": "dc-1",
+          "name": "Automatic spoken reminder",
+          "description": "A valid reminder fires through its exact alarm with automatic speech enabled.",
+          "notes": "Expected: Playback requested.",
+          "inputs": {
+            "occurrenceValid": true,
+            "offerAccepted": true,
+            "exactAlarmPath": true,
+            "autoSpeechAllowed": true
+          }
+        },
+        {
+          "id": "dc-2",
+          "name": "Notification-only reminder",
+          "description": "A valid reminder fires but automatic speech is disabled.",
+          "notes": "Expected: Manual action offered.",
+          "inputs": {
+            "occurrenceValid": true,
+            "offerAccepted": true,
+            "exactAlarmPath": true,
+            "autoSpeechAllowed": false
+          }
+        },
+        {
+          "id": "dc-3",
+          "name": "Stale edited event",
+          "description": "The alarm contains an old version or trigger time.",
+          "notes": "Expected: Occurrence ignored.",
+          "inputs": {
+            "occurrenceValid": false,
+            "offerAccepted": true,
+            "exactAlarmPath": true,
+            "autoSpeechAllowed": true
+          }
+        },
+        {
+          "id": "dc-4",
+          "name": "Notification offer failed",
+          "description": "The event is valid but notification publication cannot complete.",
+          "notes": "Expected: Retry queued.",
+          "inputs": {
+            "occurrenceValid": true,
+            "offerAccepted": false,
+            "exactAlarmPath": false,
+            "autoSpeechAllowed": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "event-audio-preparation",
+      "name": "Event Audio Preparation",
+      "description": "Prepares and stores server-generated audio independently of the event's scheduled trigger.",
+      "nodes": [
+        {
+          "id": "audio-start",
+          "type": "trigger",
+          "title": "Audio worker starts",
+          "description": "WorkManager starts a network-constrained audio preparation task.",
+          "notes": "DailyEventAudioWorker.kt → enqueue(), doWork(). Work is unique by event ID and version, with CONNECTED network constraint and exponential backoff.",
+          "links": [
+            {
+              "label": "Audio worker",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventAudioWorker.kt"
+            }
+          ],
+          "position": { "x": 0, "y": 0 }
+        },
+        {
+          "id": "audio-session",
+          "type": "condition",
+          "title": "Session exists?",
+          "description": "Checks whether the user has an active authenticated session.",
+          "notes": "DailyEventAudioWorker.doWork() → authRepository.hasSession(). Without a session, the worker exits successfully without preparation.",
+          "links": [
+            {
+              "label": "Audio worker",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventAudioWorker.kt"
+            }
+          ],
+          "position": { "x": 300, "y": 0 }
+        },
+        {
+          "id": "audio-load",
+          "type": "action",
+          "title": "Load current event",
+          "description": "Reads the event from Room using the worker's event ID.",
+          "notes": "DailyEventAudioWorker.doWork() → dailyEventDao().get(id).",
+          "links": [
+            {
+              "label": "Audio worker",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventAudioWorker.kt"
+            }
+          ],
+          "position": { "x": 600, "y": 0 }
+        },
+        {
+          "id": "audio-eligible",
+          "type": "condition",
+          "title": "Audio still eligible?",
+          "description": "Validates event version and eligibility for prepared speech.",
+          "notes": "DailyEventAudioWorker.kt → canPrepareSpeech(). Requires synced server event, positive version, planned status, speakAloud or reminder type, valid trigger, nonempty text, and event date not before today.",
+          "links": [
+            {
+              "label": "Audio worker",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventAudioWorker.kt"
+            }
+          ],
+          "position": { "x": 900, "y": 0 }
+        },
+        {
+          "id": "audio-request",
+          "type": "action",
+          "title": "Prepare event speech",
+          "description": "Reuses local prepared audio or requests server preparation and downloads ready audio.",
+          "notes": "DailyEventRepository.kt → speechAudio(eventId, version). Checks pending edits, calls prepareEventSpeech(), then eventAudio() when ready. Validates version header and Ogg/Opus container before atomic publication.",
+          "links": [
+            {
+              "label": "Repository",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/data/repository/DailyEventRepository.kt"
+            }
+          ],
+          "position": { "x": 1200, "y": 0 }
+        },
+        {
+          "id": "audio-result",
+          "type": "condition",
+          "title": "Preparation outcome?",
+          "description": "Classifies the result as ready, pending, retryable, or terminal failure.",
+          "notes": "DailyEventAudioWorker.doWork() → speechAudio(), eventAudioRetryable(). Null audio triggers retry; retryable HTTP codes include 202, 408, 424, 429, and 5xx. IOException also retries. Terminal API errors fail the worker.",
+          "links": [
+            {
+              "label": "Audio worker",
+              "url": "https://github.com/fesnguyen/hello-butler/blob/main/client/app/src/main/java/com/hellobutler/app/execution/DailyEventAudioWorker.kt"
+            }
+          ],
+          "position": { "x": 1500, "y": 0 }
+        },
+        {
+          "id": "audio-end-skipped",
+          "type": "end",
+          "title": "Preparation skipped",
+          "description": "No audio preparation is performed for this worker invocation.",
+          "notes": "Result.success() for missing session, missing event, stale version, or ineligible event.",
+          "links": [],
+          "position": { "x": 1200, "y": -280 }
+        },
+        {
+          "id": "audio-end-ready",
+          "type": "end",
+          "title": "Audio prepared",
+          "description": "A valid prepared audio file is available locally.",
+          "notes": "DailyEventRepository.speechAudio() and DailyEventSpeechStore.publish().",
+          "links": [],
+          "position": { "x": 1800, "y": -140 }
+        },
+        {
+          "id": "audio-end-retry",
+          "type": "end",
+          "title": "Preparation retry",
+          "description": "WorkManager will retry preparation according to its backoff policy.",
+          "notes": "DailyEventAudioWorker.doWork() → Result.retry().",
+          "links": [],
+          "position": { "x": 1800, "y": 140 }
+        },
+        {
+          "id": "audio-end-failed",
+          "type": "end",
+          "title": "Preparation failed",
+          "description": "The worker reports a non-retryable preparation failure.",
+          "notes": "DailyEventAudioWorker.doWork() → Result.failure(). Certain API errors also queue synchronization.",
+          "links": [],
+          "position": { "x": 1800, "y": 420 }
+        }
+      ],
+      "edges": [
+        {
+          "id": "ae-1",
+          "source": "audio-start",
+          "target": "audio-session",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "ae-2",
+          "source": "audio-session",
+          "target": "audio-load",
+          "label": "authenticated",
+          "condition": { "variable": "hasSession", "operator": "isTrue" },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "ae-3",
+          "source": "audio-session",
+          "target": "audio-end-skipped",
+          "label": "no session",
+          "fallback": true,
+          "priority": 1
+        },
+        {
+          "id": "ae-4",
+          "source": "audio-load",
+          "target": "audio-eligible",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "ae-5",
+          "source": "audio-eligible",
+          "target": "audio-request",
+          "label": "eligible",
+          "condition": { "variable": "audioEligible", "operator": "isTrue" },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "ae-6",
+          "source": "audio-eligible",
+          "target": "audio-end-skipped",
+          "label": "ineligible",
+          "fallback": true,
+          "priority": 1
+        },
+        {
+          "id": "ae-7",
+          "source": "audio-request",
+          "target": "audio-result",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "ae-8",
+          "source": "audio-result",
+          "target": "audio-end-ready",
+          "label": "ready",
+          "condition": { "variable": "preparationOutcome", "operator": "equals", "value": "ready" },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "ae-9",
+          "source": "audio-result",
+          "target": "audio-end-retry",
+          "label": "retryable",
+          "condition": { "variable": "preparationOutcome", "operator": "equals", "value": "retry" },
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "ae-10",
+          "source": "audio-result",
+          "target": "audio-end-failed",
+          "label": "terminal failure",
+          "fallback": true,
+          "priority": 2
+        }
+      ],
+      "useCases": [
+        {
+          "id": "ac-1",
+          "name": "Audio prepared successfully",
+          "description": "A valid synchronized event receives ready audio from the server.",
+          "notes": "Expected: Audio prepared.",
+          "inputs": {
+            "hasSession": true,
+            "audioEligible": true,
+            "preparationOutcome": "ready"
+          }
+        },
+        {
+          "id": "ac-2",
+          "name": "Silent ordinary event",
+          "description": "A non-reminder event has speakAloud disabled.",
+          "notes": "Expected: Preparation skipped.",
+          "inputs": {
+            "hasSession": true,
+            "audioEligible": false,
+            "preparationOutcome": "ready"
+          }
+        },
+        {
+          "id": "ac-3",
+          "name": "Server audio still pending",
+          "description": "The server has not finished preparing the requested audio.",
+          "notes": "Expected: Preparation retry.",
+          "inputs": {
+            "hasSession": true,
+            "audioEligible": true,
+            "preparationOutcome": "retry"
+          }
+        },
+        {
+          "id": "ac-4",
+          "name": "Non-retryable API failure",
+          "description": "The server rejects preparation with a terminal API error.",
+          "notes": "Expected: Preparation failed.",
+          "inputs": {
+            "hasSession": true,
+            "audioEligible": true,
+            "preparationOutcome": "failure"
+          }
+        }
+      ]
+    }
+  ]
+}
