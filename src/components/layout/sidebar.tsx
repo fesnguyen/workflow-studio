@@ -27,6 +27,32 @@ import { isVsCodeWebview, postHostMessage } from '@/lib/vscode/bridge'
 import { useProjectStore } from '@/stores/project-store'
 import { useUiStore } from '@/stores/ui-store'
 
+function FooterButton({
+  icon: Icon,
+  label,
+  title,
+  onClick,
+}: {
+  icon: typeof Save
+  label: string
+  title: string
+  onClick: () => void
+}) {
+  return (
+    <Button variant="ghost" size="sm" className="justify-start" onClick={onClick} title={title}>
+      <Icon className="size-3.5 shrink-0" /> <span className="truncate">{label}</span>
+    </Button>
+  )
+}
+
+function copyAiInstruction() {
+  const { setNotice } = useUiStore.getState()
+  void navigator.clipboard.writeText(createAiInstruction()).then(
+    () => setNotice({ kind: 'info', message: 'AI instruction copied to the clipboard.' }),
+    () => setNotice({ kind: 'error', message: 'Could not copy the AI instruction to the clipboard.' }),
+  )
+}
+
 function InlineName({
   value,
   onCommit,
@@ -76,6 +102,7 @@ interface RowProps {
   onDuplicate: () => void
   onDelete: () => void
   leading?: React.ReactNode
+  onToggle?: () => void
 }
 
 function Row({
@@ -90,6 +117,7 @@ function Row({
   onDuplicate,
   onDelete,
   leading,
+  onToggle,
 }: RowProps) {
   return (
     <div
@@ -101,7 +129,18 @@ function Row({
           : 'text-muted-foreground hover:bg-muted hover:text-foreground',
       )}
     >
-      {leading}
+      {onToggle ? (
+        <button
+          className="flex size-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-black/5"
+          onClick={onToggle}
+          aria-label={`Toggle ${label}`}
+          aria-expanded={active}
+        >
+          {leading}
+        </button>
+      ) : (
+        leading
+      )}
       {editing ? (
         <InlineName value={label} onCommit={onRename} onCancel={onCancelRename} label={`Rename ${label}`} />
       ) : (
@@ -271,6 +310,7 @@ export function Sidebar() {
                     )
                   }
                   onSelect={() => store.selectWorkflow(wf.id)}
+                  onToggle={() => store.selectWorkflow(wf.id)}
                   onStartRename={() => setEditing(wf.id)}
                   onRename={(name) => {
                     store.updateWorkflow(wf.id, { name })
@@ -336,171 +376,108 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      <div className="flex items-center gap-1 border-t px-2 py-2">
-        {extensionActive && (
-          <div className="grid w-full grid-cols-3 gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => postHostMessage({ type: 'openWorkflow' })}
-              title="Open workflow JSON"
-            >
-              <FolderOpen className="size-3.5" /> Open
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => postHostMessage({ type: 'saveWorkflow' })}
-              title="Save current workflow JSON"
-            >
-              <Save className="size-3.5" /> Save
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => postHostMessage({ type: 'saveWorkflowAs' })}
-              title="Save as a new workflow JSON file"
-            >
-              <FilePlus2 className="size-3.5" /> Save as
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => postHostMessage({ type: 'exportWorkflow' })}
-              title="Export project as JSON"
-            >
-              <Download className="size-3.5" /> Export
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => postHostMessage({ type: 'importWorkflow' })}
-              title="Import project from JSON"
-            >
-              <Upload className="size-3.5" /> Import
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setTextImportOpen(true)}
-              title="Import project JSON from text"
-            >
-              <Clipboard className="size-3.5" /> From text
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="col-span-3"
-              onClick={() => {
-                void navigator.clipboard.writeText(createAiInstruction()).then(
-                  () =>
-                    useUiStore
-                      .getState()
-                      .setNotice({ kind: 'info', message: 'AI instruction copied to the clipboard.' }),
-                  () =>
-                    useUiStore.getState().setNotice({
-                      kind: 'error',
-                      message: 'Could not copy the AI instruction to the clipboard.',
-                    }),
-                )
-              }}
-              title="Copy an instruction for an external AI coding agent"
-            >
-              <Clipboard className="size-3.5" /> Copy AI Instruction
-            </Button>
-          </div>
-        )}
-        {!extensionActive && (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => downloadProject(project)}
-              title="Export project as JSON"
-            >
-              <Download className="size-3.5" /> Export
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => fileRef.current?.click()}
-              title="Import project from JSON"
-            >
-              <Upload className="size-3.5" /> Import
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setTextImportOpen(true)}
-              title="Import project JSON from text"
-            >
-              <Clipboard className="size-3.5" /> Text
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                void navigator.clipboard.writeText(createAiInstruction()).then(
-                  () =>
-                    useUiStore
-                      .getState()
-                      .setNotice({ kind: 'info', message: 'AI instruction copied to the clipboard.' }),
-                  () =>
-                    useUiStore.getState().setNotice({
-                      kind: 'error',
-                      message: 'Could not copy the AI instruction to the clipboard.',
-                    }),
-                )
-              }}
-              title="Copy AI Instruction"
-              aria-label="Copy AI Instruction"
-            >
-              <Clipboard className="size-4" />
-            </Button>
-          </>
-        )}
-        <input
-          ref={fileRef}
-          type="file"
-          accept="application/json,.json"
-          className="hidden"
-          aria-label="Import project file"
-          data-testid="import-input"
-          onChange={(e) => {
-            void onImportFile(e.target.files?.[0])
-            e.target.value = ''
-          }}
-        />
-        <span
-          className={cn(
-            'ml-auto mr-1 max-w-24 truncate text-[11px]',
-            saveStatus === 'error' || fileDirty ? 'text-warning' : 'text-muted-foreground',
+      <div className="space-y-1 border-t px-2 py-2">
+        <div className="grid grid-cols-2 gap-1">
+          {extensionActive ? (
+            <>
+              <FooterButton
+                icon={FolderOpen}
+                label="Open"
+                title="Open workflow JSON"
+                onClick={() => postHostMessage({ type: 'openWorkflow' })}
+              />
+              <FooterButton
+                icon={Save}
+                label="Save"
+                title="Save current workflow JSON"
+                onClick={() => postHostMessage({ type: 'saveWorkflow' })}
+              />
+              <FooterButton
+                icon={FilePlus2}
+                label="Save as"
+                title="Save as a new workflow JSON file"
+                onClick={() => postHostMessage({ type: 'saveWorkflowAs' })}
+              />
+              <FooterButton
+                icon={Download}
+                label="Export"
+                title="Export project as JSON"
+                onClick={() => postHostMessage({ type: 'exportWorkflow' })}
+              />
+            </>
+          ) : (
+            <>
+              <FooterButton
+                icon={Download}
+                label="Export"
+                title="Export project as JSON"
+                onClick={() => downloadProject(project)}
+              />
+              <FooterButton
+                icon={Upload}
+                label="Import"
+                title="Import project from JSON"
+                onClick={() => fileRef.current?.click()}
+              />
+            </>
           )}
-          role="status"
-          data-testid="save-status"
-          title={
-            extensionActive
-              ? `${fileName ?? 'No file open'}${fileDirty ? ' — unsaved changes' : ''}`
-              : undefined
-          }
-        >
-          {extensionActive
-            ? `${fileName ?? 'No file'}${fileDirty ? ' •' : ''}`
-            : saveStatus === 'saving'
-              ? 'Saving…'
-              : saveStatus === 'error'
-                ? 'Not saved'
-                : 'Saved'}
-        </span>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-          title="Toggle theme"
-        >
-          {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
-        </Button>
+          <FooterButton
+            icon={Clipboard}
+            label="From text"
+            title="Import project JSON from text"
+            onClick={() => setTextImportOpen(true)}
+          />
+          <FooterButton
+            icon={Copy}
+            label="AI Instruction"
+            title="Copy an instruction for an external AI coding agent"
+            onClick={copyAiInstruction}
+          />
+        </div>
+        <div className="flex items-center gap-1 pt-1">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            aria-label="Import project file"
+            data-testid="import-input"
+            onChange={(e) => {
+              void onImportFile(e.target.files?.[0])
+              e.target.value = ''
+            }}
+          />
+          <span
+            className={cn(
+              'mr-1 min-w-0 flex-1 truncate text-[11px]',
+              saveStatus === 'error' || fileDirty ? 'text-warning' : 'text-muted-foreground',
+            )}
+            role="status"
+            data-testid="save-status"
+            title={
+              extensionActive
+                ? `${fileName ?? 'No file open'}${fileDirty ? ' — unsaved changes' : ''}`
+                : undefined
+            }
+          >
+            {extensionActive
+              ? `${fileName ?? 'No file'}${fileDirty ? ' •' : ''}`
+              : saveStatus === 'saving'
+                ? 'Saving…'
+                : saveStatus === 'error'
+                  ? 'Not saved'
+                  : 'Saved'}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+            title="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
+          </Button>
+        </div>
       </div>
       <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />
       {textImportOpen && (
