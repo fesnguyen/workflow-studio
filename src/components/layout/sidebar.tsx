@@ -127,17 +127,29 @@ function Row({
   return (
     <div
       className={cn(
-        'group flex h-8 items-center gap-1 rounded-lg pr-1 transition-colors',
+        'group relative flex h-8 items-center gap-1 rounded-lg pr-1 transition-colors',
         nested ? 'pl-2' : 'pl-1.5',
         active
           ? 'bg-accent-soft text-foreground'
           : 'text-muted-foreground hover:bg-muted hover:text-foreground',
       )}
     >
+      {/* Full-row hit area: padding and empty gaps now select the item too. */}
+      {!editing && (
+        <button
+          type="button"
+          className="absolute inset-0 z-0 w-full cursor-pointer rounded-lg text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+          onClick={onSelect}
+          onDoubleClick={onStartRename}
+          aria-label={`Select ${label}`}
+          aria-current={active ? 'true' : undefined}
+          title={label}
+        />
+      )}
       {/* Workflow expand/select arrow; use-case rows display a status dot instead. */}
       {onToggle ? (
         <button
-          className="flex size-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-black/5"
+          className="relative z-10 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-black/5"
           onClick={onToggle}
           aria-label={`Toggle ${label}`}
           aria-expanded={active}
@@ -145,28 +157,26 @@ function Row({
           {leading}
         </button>
       ) : (
-        leading
+        <span className="relative z-10 flex shrink-0 pointer-events-none">{leading}</span>
       )}
       {/* Item label switches to an inline text input while renaming. */}
       {editing ? (
-        <InlineName value={label} onCommit={onRename} onCancel={onCancelRename} label={`Rename ${label}`} />
+        <span className="relative z-10 flex min-w-0 flex-1">
+          <InlineName value={label} onCommit={onRename} onCancel={onCancelRename} label={`Rename ${label}`} />
+        </span>
       ) : (
-        <button
+        <span
           className={cn(
-            'min-w-0 flex-1 cursor-pointer truncate text-left text-sm',
+            'pointer-events-none relative z-10 min-w-0 flex-1 truncate text-left text-sm',
             active && 'font-medium text-foreground',
           )}
-          onClick={onSelect}
-          onDoubleClick={onStartRename}
-          aria-current={active ? 'true' : undefined}
-          title={label}
         >
           {label}
-        </button>
+        </span>
       )}
       {/* Item actions: rename, duplicate, and delete. */}
       {!editing && (
-        <span className="flex opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+        <span className="relative z-10 flex opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
           <Button
             variant="ghost"
             size="icon-sm"
