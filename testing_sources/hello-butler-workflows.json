@@ -1,0 +1,2251 @@
+
+{
+  "version": 1,
+  "project": {
+    "id": "hello-butler",
+    "name": "Hello Butler — Current Execution Workflows",
+    "description": "Source-based workflow model of fesnguyen/hello-butler, main at commit 091f1ddc4a4fcd70d3ee093d3525beb629fe6ac4. Covers verified Android event scheduling, audio continuation, synchronization, Butler requests, and nightly preparation. Ordinary non-audio daily events are not automatically executed by the current DailyEventScheduler. This is a current-state model, not a proposed unified scheduler."
+  },
+  "workflows": [
+    {
+      "id": "daily-event-scheduling",
+      "name": "Daily Event Scheduling",
+      "description": "Schedules eligible spoken events and reminders using AlarmManager or WorkManager. Ordinary non-audio events do not receive an execution alarm.",
+      "nodes": [
+        {
+          "id": "event-schedule",
+          "type": "trigger",
+          "title": "Schedule daily event",
+          "description": "A daily event is submitted to the scheduler.",
+          "notes": "This is the current event scheduling entry point. It does not schedule every DailyEventEntity.",
+          "links": [],
+          "source": {
+            "file": {
+              "path": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+              "description": "Daily event alarm registration and cancellation."
+            },
+            "class": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+              "name": "DailyEventScheduler",
+              "qualifiedName": "com.hellobutler.app.execution.DailyEventScheduler",
+              "constructorParameters": [
+                {
+                  "name": "context",
+                  "type": "Context",
+                  "description": "Android context used to access AlarmManager and schedule background work."
+                }
+              ],
+              "baseClasses": [],
+              "interfaces": []
+            },
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+              "name": "schedule",
+              "qualifiedName": "com.hellobutler.app.execution.DailyEventScheduler.schedule",
+              "containingClass": "DailyEventScheduler",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": "DailyEventEntity",
+                  "description": "Daily event to evaluate and schedule."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Validates scheduling eligibility and registers or cancels execution.",
+              "calls": [
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+                  "name": "triggerAtMillis",
+                  "qualifiedName": "com.hellobutler.app.execution.triggerAtMillis",
+                  "parameters": [],
+                  "returnType": "Long?",
+                  "description": "Calculates the event trigger timestamp."
+                },
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+                  "name": "cancel",
+                  "containingClass": "DailyEventScheduler",
+                  "parameters": [
+                    {
+                      "name": "event",
+                      "type": "DailyEventEntity",
+                      "description": "Event whose execution is cancelled."
+                    }
+                  ],
+                  "returnType": "Unit",
+                  "description": "Cancels the alarm, worker, and deferred notification."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 200
+          }
+        },
+        {
+          "id": "event-eligible",
+          "type": "condition",
+          "title": "Eligible for scheduling?",
+          "description": "Requires a valid future or due trigger, planned status, nonempty spoken content, no playback attempt, and either speakAloud=true or eventType=reminder.",
+          "notes": "The code rejects events when triggerAt is null, status is not planned, both speakAloud is false and type is not reminder, all text fields are blank, or playbackAttemptedAt is not null.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+              "name": "schedule",
+              "containingClass": "DailyEventScheduler",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": "DailyEventEntity",
+                  "description": "Event whose eligibility is checked."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Contains the eligibility guard before scheduling.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 340,
+            "y": 200
+          }
+        },
+        {
+          "id": "event-cancel",
+          "type": "action",
+          "title": "Cancel existing scheduling",
+          "description": "Removes the existing alarm, execution worker, and deferred speech notification.",
+          "notes": "An ordinary non-audio event follows this branch. This does not delete the event from the database.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+              "name": "cancel",
+              "qualifiedName": "com.hellobutler.app.execution.DailyEventScheduler.cancel",
+              "containingClass": "DailyEventScheduler",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": "DailyEventEntity",
+                  "description": "Event to unschedule."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Cancels Android alarm, worker, and notification.",
+              "calls": [
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt",
+                  "name": "cancel",
+                  "containingClass": "DailyEventExecutionWorker.Companion",
+                  "parameters": [
+                    {
+                      "name": "context",
+                      "type": "Context",
+                      "description": "Android context."
+                    },
+                    {
+                      "name": "eventId",
+                      "type": "String",
+                      "description": "Unique event identifier."
+                    }
+                  ],
+                  "description": "Cancels pending execution work."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 700,
+            "y": 0
+          }
+        },
+        {
+          "id": "event-due",
+          "type": "condition",
+          "title": "Trigger already due?",
+          "description": "Checks whether triggerAt is less than or equal to the current timestamp.",
+          "notes": "Past or due events use a separate branch. Only events passing isDueForSpeech are enqueued immediately.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+              "name": "schedule",
+              "containingClass": "DailyEventScheduler",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": "DailyEventEntity",
+                  "description": "Scheduled event."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Checks the calculated trigger against current time.",
+              "calls": [
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+                  "name": "isDueForSpeech",
+                  "parameters": [
+                    {
+                      "name": "nowMillis",
+                      "type": "Long",
+                      "description": "Current timestamp; defaults to System.currentTimeMillis()."
+                    }
+                  ],
+                  "returnType": "Boolean",
+                  "description": "Checks whether an event is due for speech."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 700,
+            "y": 300
+          }
+        },
+        {
+          "id": "event-immediate",
+          "type": "action",
+          "title": "Enqueue due execution",
+          "description": "Uses WorkManager to offer playback for an event already due.",
+          "notes": "Only taken if isDueForSpeech returns true.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt",
+              "name": "enqueue",
+              "containingClass": "DailyEventExecutionWorker.Companion",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": "Context",
+                  "description": "Android context."
+                },
+                {
+                  "name": "event",
+                  "type": "DailyEventEntity",
+                  "description": "Event being enqueued."
+                },
+                {
+                  "name": "delayMillis",
+                  "type": "Long",
+                  "description": "Execution delay, zero for immediate work."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Enqueues a uniquely named execution worker.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 1050,
+            "y": 100
+          }
+        },
+        {
+          "id": "exact-permission",
+          "type": "condition",
+          "title": "Exact alarms allowed?",
+          "description": "Checks Android version and exact-alarm permission.",
+          "notes": "On Android versions before S, exact scheduling is treated as allowed. Otherwise canScheduleExactAlarms is checked.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+              "name": "schedule",
+              "containingClass": "DailyEventScheduler",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": "DailyEventEntity",
+                  "description": "Event being scheduled."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Selects exact alarm or WorkManager fallback.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 1050,
+            "y": 400
+          }
+        },
+        {
+          "id": "exact-alarm",
+          "type": "action",
+          "title": "Register exact alarm",
+          "description": "Calls AlarmManager.setExactAndAllowWhileIdle with event identity, version, and trigger timestamp.",
+          "notes": "If registration throws, the scheduler enqueues the WorkManager fallback.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+              "name": "alarmPendingIntent",
+              "containingClass": "DailyEventScheduler",
+              "parameters": [
+                {
+                  "name": "eventId",
+                  "type": "String",
+                  "description": "Unique event identifier."
+                },
+                {
+                  "name": "version",
+                  "type": "Int",
+                  "description": "Event version, default -1."
+                },
+                {
+                  "name": "triggerAt",
+                  "type": "Long",
+                  "description": "Expected trigger timestamp, default -1."
+                }
+              ],
+              "returnType": "PendingIntent",
+              "description": "Creates a broadcast PendingIntent targeting DailyEventAlarmReceiver.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 1400,
+            "y": 300
+          }
+        },
+        {
+          "id": "worker-fallback",
+          "type": "action",
+          "title": "Schedule WorkManager fallback",
+          "description": "Schedules a delayed DailyEventExecutionWorker when exact alarms are unavailable or registration fails.",
+          "notes": "A delayed worker does not directly start a foreground playback service. It offers a local Listen action.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt",
+              "name": "enqueue",
+              "containingClass": "DailyEventExecutionWorker.Companion",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": "Context",
+                  "description": "Android context."
+                },
+                {
+                  "name": "event",
+                  "type": "DailyEventEntity",
+                  "description": "Event being scheduled."
+                },
+                {
+                  "name": "delayMillis",
+                  "type": "Long",
+                  "description": "Remaining delay until the event trigger."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Registers a delayed worker.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 1400,
+            "y": 550
+          }
+        },
+        {
+          "id": "alarm-received",
+          "type": "trigger",
+          "title": "Alarm fires",
+          "description": "Android delivers the scheduled broadcast.",
+          "notes": "The receiver loads the current event and validates both event version and expected trigger.",
+          "links": [],
+          "source": {
+            "class": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt",
+              "name": "DailyEventAlarmReceiver",
+              "qualifiedName": "com.hellobutler.app.execution.DailyEventAlarmReceiver",
+              "constructorParameters": [],
+              "baseClasses": [
+                {
+                  "filePath": "",
+                  "name": "BroadcastReceiver",
+                  "qualifiedName": "android.content.BroadcastReceiver",
+                  "description": "Android broadcast receiver base class."
+                }
+              ],
+              "interfaces": []
+            },
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt",
+              "name": "onReceive",
+              "containingClass": "DailyEventAlarmReceiver",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": "Context",
+                  "description": "Broadcast context."
+                },
+                {
+                  "name": "intent",
+                  "type": "Intent",
+                  "description": "Broadcast containing event identity and expected version and trigger."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Validates and handles a scheduled event alarm.",
+              "calls": [
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/DailyEventRepository.kt",
+                  "name": "offerEventPlayback",
+                  "containingClass": "DailyEventRepository",
+                  "parameters": [
+                    {
+                      "name": "event",
+                      "type": "DailyEventEntity",
+                      "description": "Current event."
+                    },
+                    {
+                      "name": "publish",
+                      "type": "(DailyEventEntity, Boolean) -> Boolean",
+                      "description": "Callback publishing a playback offer."
+                    }
+                  ],
+                  "returnType": "Boolean",
+                  "description": "Attempts to publish a Listen notification."
+                },
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/execution/ButlerAudioPlaybackService.kt",
+                  "name": "playEvent",
+                  "containingClass": "ButlerAudioPlaybackService.Companion",
+                  "parameters": [
+                    {
+                      "name": "context",
+                      "type": "Context",
+                      "description": "Android context."
+                    },
+                    {
+                      "name": "eventId",
+                      "type": "String",
+                      "description": "Event identifier."
+                    },
+                    {
+                      "name": "automatic",
+                      "type": "Boolean",
+                      "description": "Whether playback is automatic."
+                    },
+                    {
+                      "name": "expectedVersion",
+                      "type": "Int?",
+                      "description": "Expected event version."
+                    },
+                    {
+                      "name": "expectedTrigger",
+                      "type": "Long?",
+                      "description": "Expected trigger timestamp."
+                    }
+                  ],
+                  "returnType": "Unit",
+                  "description": "Requests foreground audio playback."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 1750,
+            "y": 300
+          }
+        },
+        {
+          "id": "alarm-valid",
+          "type": "condition",
+          "title": "Event still valid and due?",
+          "description": "Checks isDueForSpeech and matchesAlarm against the current database event.",
+          "notes": "Stale, cancelled, changed, or otherwise ineligible alarms return without playback.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventScheduler.kt",
+              "name": "matchesAlarm",
+              "parameters": [
+                {
+                  "name": "version",
+                  "type": "Int",
+                  "description": "Version captured when scheduling."
+                },
+                {
+                  "name": "trigger",
+                  "type": "Long",
+                  "description": "Trigger timestamp captured when scheduling."
+                }
+              ],
+              "returnType": "Boolean",
+              "description": "Rejects stale alarms.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 2080,
+            "y": 300
+          }
+        },
+        {
+          "id": "alarm-invalid-end",
+          "type": "end",
+          "title": "Ignore stale alarm",
+          "description": "Execution stops without playback.",
+          "notes": "The receiver returns when the event is absent, ineligible, or mismatched.",
+          "links": [],
+          "position": {
+            "x": 2420,
+            "y": 100
+          }
+        },
+        {
+          "id": "alarm-execute",
+          "type": "action",
+          "title": "Offer notification and consider audio",
+          "description": "Attempts a deferred Listen notification. If sound settings allow automatic playback, starts ButlerAudioPlaybackService. Otherwise playback is not automatically started.",
+          "notes": "If the playback offer fails, an execution worker is enqueued. IllegalStateException and SecurityException from starting playback also enqueue a worker.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/DailyEventExecution.kt",
+              "name": "onReceive",
+              "containingClass": "DailyEventAlarmReceiver",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": "Context",
+                  "description": "Receiver context."
+                },
+                {
+                  "name": "intent",
+                  "type": "Intent",
+                  "description": "Scheduled alarm intent."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Offers event playback and conditionally launches audio.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 2420,
+            "y": 400
+          }
+        },
+        {
+          "id": "event-scheduled-end",
+          "type": "end",
+          "title": "Event execution handed off",
+          "description": "Notification offering or audio playback proceeds through its respective component.",
+          "notes": "This is a handoff, not a guarantee that audio plays or a notification is displayed.",
+          "links": [],
+          "position": {
+            "x": 2780,
+            "y": 400
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1",
+          "source": "event-schedule",
+          "target": "event-eligible",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e2",
+          "source": "event-eligible",
+          "target": "event-cancel",
+          "label": "Not eligible",
+          "condition": {
+            "variable": "eligible",
+            "operator": "isFalse"
+          },
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e3",
+          "source": "event-eligible",
+          "target": "event-due",
+          "label": "Eligible",
+          "condition": {
+            "variable": "eligible",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e4",
+          "source": "event-due",
+          "target": "event-immediate",
+          "label": "Due and speech-eligible",
+          "condition": {
+            "variable": "dueForSpeech",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e5",
+          "source": "event-due",
+          "target": "exact-permission",
+          "label": "Future",
+          "condition": {
+            "variable": "future",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e6",
+          "source": "event-due",
+          "target": "event-cancel",
+          "label": "Due but ineligible",
+          "condition": {
+            "variable": "dueButIneligible",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 2
+        },
+        {
+          "id": "e7",
+          "source": "exact-permission",
+          "target": "exact-alarm",
+          "label": "Allowed",
+          "condition": {
+            "variable": "exactAllowed",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e8",
+          "source": "exact-permission",
+          "target": "worker-fallback",
+          "label": "Not allowed",
+          "condition": {
+            "variable": "exactAllowed",
+            "operator": "isFalse"
+          },
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e9",
+          "source": "exact-alarm",
+          "target": "alarm-received",
+          "label": "At trigger time",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e10",
+          "source": "exact-alarm",
+          "target": "worker-fallback",
+          "label": "Registration failure",
+          "condition": {
+            "variable": "alarmRegistrationFailed",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e11",
+          "source": "alarm-received",
+          "target": "alarm-valid",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e12",
+          "source": "alarm-valid",
+          "target": "alarm-invalid-end",
+          "label": "Invalid",
+          "condition": {
+            "variable": "alarmValid",
+            "operator": "isFalse"
+          },
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e13",
+          "source": "alarm-valid",
+          "target": "alarm-execute",
+          "label": "Valid",
+          "condition": {
+            "variable": "alarmValid",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e14",
+          "source": "alarm-execute",
+          "target": "event-scheduled-end",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e15",
+          "source": "worker-fallback",
+          "target": "event-scheduled-end",
+          "label": "Worker handoff",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e16",
+          "source": "event-immediate",
+          "target": "event-scheduled-end",
+          "fallback": false,
+          "priority": 0
+        }
+      ],
+      "useCases": [
+        {
+          "id": "ordinary-event",
+          "name": "Ordinary non-audio event",
+          "description": "A planned event has a valid time but is neither spoken nor a reminder.",
+          "notes": "The scheduler cancels any existing execution and returns. No event-time notification is scheduled by this function.",
+          "inputs": {
+            "eligible": false,
+            "speakAloud": false,
+            "eventType": "event",
+            "status": "planned"
+          }
+        },
+        {
+          "id": "spoken-event",
+          "name": "Future spoken event",
+          "description": "A planned event requests speech and exact alarms are available.",
+          "notes": "Registers an exact alarm for the future trigger.",
+          "inputs": {
+            "eligible": true,
+            "dueForSpeech": false,
+            "future": true,
+            "exactAllowed": true,
+            "speakAloud": true
+          }
+        },
+        {
+          "id": "reminder",
+          "name": "Reminder without speakAloud",
+          "description": "A reminder qualifies for scheduling even if speakAloud is false.",
+          "notes": "The reminder event type independently satisfies the scheduling condition.",
+          "inputs": {
+            "eligible": true,
+            "future": true,
+            "dueForSpeech": false,
+            "exactAllowed": true,
+            "eventType": "reminder",
+            "speakAloud": false
+          }
+        },
+        {
+          "id": "permission-denied",
+          "name": "Exact alarm permission unavailable",
+          "description": "An eligible future event falls back to WorkManager.",
+          "notes": "The worker offers a Listen notification rather than directly launching background foreground-service playback.",
+          "inputs": {
+            "eligible": true,
+            "future": true,
+            "dueForSpeech": false,
+            "exactAllowed": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "audio-workflow-continuation",
+      "name": "Audio Workflow Scheduling and Continuation",
+      "description": "Schedules persisted audio execution checkpoints and resumes them through Android alarm or worker entry points.",
+      "nodes": [
+        {
+          "id": "audio-start",
+          "type": "trigger",
+          "title": "Schedule audio execution",
+          "description": "Receives an AudioExecution with its workflow, checkpoint, and due timestamp.",
+          "notes": "AudioWorkflowScheduler is distinct from DailyEventScheduler.",
+          "links": [],
+          "source": {
+            "class": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/audio/AudioWorkflowScheduler.kt",
+              "name": "AudioWorkflowScheduler",
+              "qualifiedName": "com.hellobutler.app.execution.audio.AudioWorkflowScheduler",
+              "constructorParameters": [
+                {
+                  "name": "context",
+                  "type": "Context",
+                  "description": "Android context."
+                },
+                {
+                  "name": "store",
+                  "type": "AudioWorkflowStore",
+                  "description": "Persistent audio execution state."
+                }
+              ],
+              "baseClasses": [],
+              "interfaces": []
+            },
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/audio/AudioWorkflowScheduler.kt",
+              "name": "schedule",
+              "qualifiedName": "com.hellobutler.app.execution.audio.AudioWorkflowScheduler.schedule",
+              "containingClass": "AudioWorkflowScheduler",
+              "parameters": [
+                {
+                  "name": "execution",
+                  "type": "AudioExecution",
+                  "description": "Audio execution containing workflow state and continuation checkpoint."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Schedules an eligible audio continuation.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 200
+          }
+        },
+        {
+          "id": "audio-can-continue",
+          "type": "condition",
+          "title": "Can execution continue?",
+          "description": "Checks execution.canContinue(next, dueAt).",
+          "notes": "If the check fails, schedule returns without registering continuation work.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/audio/AudioWorkflowScheduler.kt",
+              "name": "schedule",
+              "containingClass": "AudioWorkflowScheduler",
+              "parameters": [
+                {
+                  "name": "execution",
+                  "type": "AudioExecution",
+                  "description": "Execution to validate."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Rejects non-continuable executions.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 350,
+            "y": 200
+          }
+        },
+        {
+          "id": "audio-rejected",
+          "type": "end",
+          "title": "No continuation scheduled",
+          "description": "The execution is not scheduled.",
+          "notes": "Early return from schedule.",
+          "links": [],
+          "position": {
+            "x": 700,
+            "y": 0
+          }
+        },
+        {
+          "id": "audio-register",
+          "type": "action",
+          "title": "Persist and register continuation",
+          "description": "Transitions execution state and registers unique WorkManager continuation work, with alarm handling as implemented by the scheduler.",
+          "notes": "The scheduler retains execution-specific identity for cancellation and continuation.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/audio/AudioWorkflowScheduler.kt",
+              "name": "schedule",
+              "containingClass": "AudioWorkflowScheduler",
+              "parameters": [
+                {
+                  "name": "execution",
+                  "type": "AudioExecution",
+                  "description": "Execution being scheduled."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Schedules continuation using persisted execution state.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 700,
+            "y": 300
+          }
+        },
+        {
+          "id": "audio-continuation",
+          "type": "trigger",
+          "title": "Audio continuation fires",
+          "description": "A scheduled audio continuation is handled by AudioContinuationReceiver or AudioContinuationWorker.",
+          "notes": "The receiver and worker are separate Android entry points. Both operate on persisted audio execution identity and checkpoint state.",
+          "links": [],
+          "source": {
+            "class": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/audio/AudioWorkflowScheduler.kt",
+              "name": "AudioContinuationReceiver",
+              "qualifiedName": "com.hellobutler.app.execution.audio.AudioContinuationReceiver",
+              "constructorParameters": [],
+              "baseClasses": [
+                {
+                  "filePath": "",
+                  "name": "BroadcastReceiver",
+                  "qualifiedName": "android.content.BroadcastReceiver",
+                  "description": "Android broadcast receiver."
+                }
+              ],
+              "interfaces": []
+            },
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/audio/AudioWorkflowScheduler.kt",
+              "name": "onReceive",
+              "containingClass": "AudioContinuationReceiver",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": "Context",
+                  "description": "Android context."
+                },
+                {
+                  "name": "intent",
+                  "type": "Intent",
+                  "description": "Continuation intent containing execution identity."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Handles scheduled audio continuation.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 1050,
+            "y": 300
+          }
+        },
+        {
+          "id": "audio-resume",
+          "type": "action",
+          "title": "Resume playback service",
+          "description": "Requests the single ButlerAudioPlaybackService owner to resume the saved execution.",
+          "notes": "Playback admission and validity checks occur in the service.",
+          "links": [],
+          "source": {
+            "class": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/ButlerAudioPlaybackService.kt",
+              "name": "ButlerAudioPlaybackService",
+              "qualifiedName": "com.hellobutler.app.execution.ButlerAudioPlaybackService",
+              "constructorParameters": [],
+              "baseClasses": [
+                {
+                  "filePath": "",
+                  "name": "Service",
+                  "qualifiedName": "android.app.Service",
+                  "description": "Android service base class."
+                }
+              ],
+              "interfaces": []
+            },
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/ButlerAudioPlaybackService.kt",
+              "name": "resume",
+              "containingClass": "ButlerAudioPlaybackService.Companion",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": "Context",
+                  "description": "Android context."
+                },
+                {
+                  "name": "id",
+                  "type": "String",
+                  "description": "Audio execution identifier."
+                },
+                {
+                  "name": "checkpoint",
+                  "type": "Int",
+                  "description": "Expected checkpoint, default -1."
+                },
+                {
+                  "name": "dueAt",
+                  "type": "Long",
+                  "description": "Expected due timestamp, default -1."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Starts the foreground playback service with continuation identity.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 1400,
+            "y": 300
+          }
+        },
+        {
+          "id": "audio-playback",
+          "type": "action",
+          "title": "Validate and execute playback",
+          "description": "The service admits the request, validates current execution and event state, and runs the playback sequence.",
+          "notes": "Playback may be rejected or cancelled. Starting the service does not guarantee that audio plays.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/ButlerAudioPlaybackService.kt",
+              "name": "executePlayback",
+              "containingClass": "ButlerAudioPlaybackService",
+              "parameters": [
+                {
+                  "name": "request",
+                  "type": "PlaybackRequest",
+                  "description": "Decoded playback request."
+                },
+                {
+                  "name": "existing",
+                  "type": "AudioExecution?",
+                  "description": "Existing execution when resuming."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Executes playback through the service-owned player.",
+              "calls": [
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/execution/ButlerAudioPlaybackService.kt",
+                  "name": "validEvent",
+                  "containingClass": "ButlerAudioPlaybackService",
+                  "parameters": [
+                    {
+                      "name": "execution",
+                      "type": "AudioExecution",
+                      "description": "Execution whose event identity is checked."
+                    }
+                  ],
+                  "returnType": "Boolean",
+                  "description": "Validates current event state."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 1750,
+            "y": 300
+          }
+        },
+        {
+          "id": "audio-end",
+          "type": "end",
+          "title": "Playback handled",
+          "description": "The service handles completion, cancellation, or rejection.",
+          "notes": "The service owns playback resource cleanup.",
+          "links": [],
+          "position": {
+            "x": 2100,
+            "y": 300
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "a1",
+          "source": "audio-start",
+          "target": "audio-can-continue",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "a2",
+          "source": "audio-can-continue",
+          "target": "audio-rejected",
+          "label": "Cannot continue",
+          "condition": {
+            "variable": "canContinue",
+            "operator": "isFalse"
+          },
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "a3",
+          "source": "audio-can-continue",
+          "target": "audio-register",
+          "label": "Can continue",
+          "condition": {
+            "variable": "canContinue",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "a4",
+          "source": "audio-register",
+          "target": "audio-continuation",
+          "label": "At continuation time",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "a5",
+          "source": "audio-continuation",
+          "target": "audio-resume",
+          "label": "Valid continuation handoff",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "a6",
+          "source": "audio-resume",
+          "target": "audio-playback",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "a7",
+          "source": "audio-playback",
+          "target": "audio-end",
+          "fallback": false,
+          "priority": 0
+        }
+      ],
+      "useCases": [
+        {
+          "id": "continue-audio",
+          "name": "Valid continuation",
+          "description": "An audio execution is eligible for continuation.",
+          "notes": "Registers continuation and resumes through the playback service when due.",
+          "inputs": {
+            "canContinue": true
+          }
+        },
+        {
+          "id": "invalid-continuation",
+          "name": "Execution cannot continue",
+          "description": "The execution fails canContinue.",
+          "notes": "schedule returns without registering new continuation work.",
+          "inputs": {
+            "canContinue": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "daily-event-sync",
+      "name": "Daily Event Synchronization",
+      "description": "Synchronizes local event edits and retrieves daily plan snapshots from the backend.",
+      "nodes": [
+        {
+          "id": "sync-trigger",
+          "type": "trigger",
+          "title": "Daily sync worker starts",
+          "description": "WorkManager starts a one-time or periodic synchronization.",
+          "notes": "One-time work uses APPEND_OR_REPLACE. Periodic work is scheduled every six hours with KEEP. Both require network connectivity.",
+          "links": [],
+          "source": {
+            "class": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/sync/DailySyncWorker.kt",
+              "name": "DailySyncWorker",
+              "qualifiedName": "com.hellobutler.app.sync.DailySyncWorker",
+              "constructorParameters": [
+                {
+                  "name": "appContext",
+                  "type": "Context",
+                  "description": "Application context."
+                },
+                {
+                  "name": "params",
+                  "type": "WorkerParameters",
+                  "description": "WorkManager worker parameters."
+                }
+              ],
+              "baseClasses": [
+                {
+                  "filePath": "",
+                  "name": "CoroutineWorker",
+                  "qualifiedName": "androidx.work.CoroutineWorker",
+                  "description": "Coroutine-enabled WorkManager worker."
+                }
+              ],
+              "interfaces": []
+            },
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/sync/DailySyncWorker.kt",
+              "name": "doWork",
+              "containingClass": "DailySyncWorker",
+              "parameters": [],
+              "returnType": "Result",
+              "description": "Runs authenticated settings and daily event synchronization.",
+              "calls": [
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/execution/NightlyPlanSync.kt",
+                  "name": "scheduleNext",
+                  "containingClass": "NightlyPlanSyncWorker.Companion",
+                  "parameters": [
+                    {
+                      "name": "context",
+                      "type": "Context",
+                      "description": "Application context."
+                    }
+                  ],
+                  "returnType": "Unit",
+                  "description": "Maintains nightly planning work."
+                },
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/DailyEventRepository.kt",
+                  "name": "synchronize",
+                  "containingClass": "DailyEventRepository",
+                  "parameters": [
+                    {
+                      "name": "dates",
+                      "type": "List<String>",
+                      "description": "Dates to synchronize."
+                    }
+                  ],
+                  "returnType": "Set<String>",
+                  "description": "Pushes pending edits and pulls daily plans."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 200
+          }
+        },
+        {
+          "id": "sync-auth",
+          "type": "condition",
+          "title": "Authenticated session?",
+          "description": "Checks authRepository.hasSession().",
+          "notes": "Without a session, the worker returns success without synchronizing.",
+          "links": [],
+          "position": {
+            "x": 350,
+            "y": 200
+          }
+        },
+        {
+          "id": "sync-skip",
+          "type": "end",
+          "title": "Skip sync",
+          "description": "Returns Result.success without a session.",
+          "notes": "No server synchronization is attempted.",
+          "links": [],
+          "position": {
+            "x": 700,
+            "y": 0
+          }
+        },
+        {
+          "id": "sync-settings",
+          "type": "action",
+          "title": "Synchronize settings",
+          "description": "Attempts user settings synchronization independently.",
+          "notes": "The worker captures non-cancellation failures for retry handling.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/sync/DailySyncWorker.kt",
+              "name": "doWork",
+              "containingClass": "DailySyncWorker",
+              "parameters": [],
+              "returnType": "Result",
+              "description": "Calls userSettingsRepository.synchronize.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 700,
+            "y": 300
+          }
+        },
+        {
+          "id": "sync-events",
+          "type": "action",
+          "title": "Push and pull daily events",
+          "description": "Pushes pending local edits, then pulls requested dates including today and tomorrow.",
+          "notes": "The repository synchronizes distinct dates and returns the set of successfully pulled dates.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/DailyEventRepository.kt",
+              "name": "synchronize",
+              "qualifiedName": "com.hellobutler.app.data.repository.DailyEventRepository.synchronize",
+              "containingClass": "DailyEventRepository",
+              "parameters": [
+                {
+                  "name": "dates",
+                  "type": "List<String>",
+                  "description": "ISO date strings to synchronize."
+                }
+              ],
+              "returnType": "Set<String>",
+              "description": "Pushes pending edits before pulling each requested date.",
+              "calls": [
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/DailyEventRepository.kt",
+                  "name": "pushPending",
+                  "containingClass": "DailyEventRepository",
+                  "parameters": [],
+                  "returnType": "Unit",
+                  "description": "Uploads queued mutations."
+                },
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/DailyEventRepository.kt",
+                  "name": "pull",
+                  "containingClass": "DailyEventRepository",
+                  "parameters": [
+                    {
+                      "name": "date",
+                      "type": "String",
+                      "description": "Date to retrieve."
+                    }
+                  ],
+                  "returnType": "Boolean",
+                  "description": "Retrieves and reconciles a daily plan."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 1050,
+            "y": 300
+          }
+        },
+        {
+          "id": "sync-success",
+          "type": "condition",
+          "title": "Both sync operations succeeded?",
+          "description": "Checks the settings and event synchronization results.",
+          "notes": "Cancellation exceptions are rethrown. Other failures lead to retry.",
+          "links": [],
+          "position": {
+            "x": 1400,
+            "y": 300
+          }
+        },
+        {
+          "id": "sync-complete",
+          "type": "end",
+          "title": "Synchronization complete",
+          "description": "Returns Result.success.",
+          "notes": "Both operations completed successfully.",
+          "links": [],
+          "position": {
+            "x": 1750,
+            "y": 150
+          }
+        },
+        {
+          "id": "sync-retry",
+          "type": "end",
+          "title": "Retry synchronization",
+          "description": "Returns Result.retry.",
+          "notes": "At least one synchronization operation failed.",
+          "links": [],
+          "position": {
+            "x": 1750,
+            "y": 450
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "s1",
+          "source": "sync-trigger",
+          "target": "sync-auth",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "s2",
+          "source": "sync-auth",
+          "target": "sync-skip",
+          "label": "No session",
+          "condition": {
+            "variable": "hasSession",
+            "operator": "isFalse"
+          },
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "s3",
+          "source": "sync-auth",
+          "target": "sync-settings",
+          "label": "Session available",
+          "condition": {
+            "variable": "hasSession",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "s4",
+          "source": "sync-settings",
+          "target": "sync-events",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "s5",
+          "source": "sync-events",
+          "target": "sync-success",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "s6",
+          "source": "sync-success",
+          "target": "sync-complete",
+          "label": "Both succeeded",
+          "condition": {
+            "variable": "bothSucceeded",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "s7",
+          "source": "sync-success",
+          "target": "sync-retry",
+          "label": "Failure",
+          "condition": {
+            "variable": "bothSucceeded",
+            "operator": "isFalse"
+          },
+          "fallback": false,
+          "priority": 1
+        }
+      ],
+      "useCases": [
+        {
+          "id": "sync-normal",
+          "name": "Authenticated successful sync",
+          "description": "Both settings and event synchronization succeed.",
+          "notes": "The worker returns success.",
+          "inputs": {
+            "hasSession": true,
+            "bothSucceeded": true
+          }
+        },
+        {
+          "id": "sync-no-session",
+          "name": "No authenticated session",
+          "description": "Synchronization is skipped.",
+          "notes": "The worker returns success without network synchronization.",
+          "inputs": {
+            "hasSession": false
+          }
+        },
+        {
+          "id": "sync-failure",
+          "name": "Synchronization failure",
+          "description": "At least one operation fails.",
+          "notes": "The worker requests retry.",
+          "inputs": {
+            "hasSession": true,
+            "bothSucceeded": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "butler-request",
+      "name": "Butler Text and Audio Requests",
+      "description": "Queues user text or audio, uploads the request, reconciles backend results, and prepares response audio when available.",
+      "nodes": [
+        {
+          "id": "request-input",
+          "type": "trigger",
+          "title": "User submits Butler input",
+          "description": "The user submits text or an audio recording.",
+          "notes": "The repository supports queueText and queueAudio. Audio input is validated as Ogg/Opus.",
+          "links": [],
+          "source": {
+            "class": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/ButlerRepository.kt",
+              "name": "ButlerRepository",
+              "qualifiedName": "com.hellobutler.app.data.repository.ButlerRepository"
+            },
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/ButlerRepository.kt",
+              "name": "queueText",
+              "containingClass": "ButlerRepository",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": "String",
+                  "description": "Nonblank text message."
+                }
+              ],
+              "returnType": "String",
+              "description": "Creates a durable text request and returns its identifier.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 200
+          }
+        },
+        {
+          "id": "request-upload",
+          "type": "action",
+          "title": "Upload queued request",
+          "description": "A network-constrained worker calls ButlerRepository.upload.",
+          "notes": "Work is uniquely named by request ID and uses KEEP. Failures cause retry.",
+          "links": [],
+          "source": {
+            "class": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/sync/ButlerRequestWorkers.kt",
+              "name": "ButlerRequestWorker",
+              "constructorParameters": [
+                {
+                  "name": "appContext",
+                  "type": "Context",
+                  "description": "Application context."
+                },
+                {
+                  "name": "params",
+                  "type": "WorkerParameters",
+                  "description": "WorkManager parameters."
+                }
+              ],
+              "baseClasses": [
+                {
+                  "filePath": "",
+                  "name": "CoroutineWorker"
+                }
+              ],
+              "interfaces": []
+            },
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/ButlerRepository.kt",
+              "name": "upload",
+              "containingClass": "ButlerRepository",
+              "parameters": [
+                {
+                  "name": "requestId",
+                  "type": "String",
+                  "description": "Queued request identifier."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Uploads a durable request to the backend.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 350,
+            "y": 200
+          }
+        },
+        {
+          "id": "request-backend",
+          "type": "action",
+          "title": "Backend accepts and processes request",
+          "description": "The backend accepts the text or audio request and processes it through ButlerRequestService and ButlerService.",
+          "notes": "The backend exposes asynchronous request acceptance and result retrieval.",
+          "links": [],
+          "source": {
+            "class": {
+              "filePath": "backend/app/application/butler/requests.py",
+              "name": "ButlerRequestService"
+            },
+            "function": {
+              "filePath": "backend/app/application/butler/requests.py",
+              "name": "process",
+              "containingClass": "ButlerRequestService",
+              "parameters": [
+                {
+                  "name": "request_id",
+                  "type": "uuid.UUID",
+                  "description": "Accepted Butler request identifier."
+                }
+              ],
+              "returnType": "None",
+              "description": "Processes a queued Butler request.",
+              "calls": [
+                {
+                  "filePath": "backend/app/application/butler/service.py",
+                  "name": "handle",
+                  "containingClass": "ButlerService",
+                  "parameters": [
+                    {
+                      "name": "user_id",
+                      "type": "uuid.UUID",
+                      "description": "Authenticated user."
+                    },
+                    {
+                      "name": "interaction_mode",
+                      "type": "InteractionMode",
+                      "description": "Butler interaction mode."
+                    },
+                    {
+                      "name": "message",
+                      "type": "str | None",
+                      "description": "Optional text input."
+                    },
+                    {
+                      "name": "audio_path",
+                      "type": "Path | None",
+                      "description": "Optional audio input file."
+                    },
+                    {
+                      "name": "audio_mime_type",
+                      "type": "str | None",
+                      "description": "Optional audio MIME type."
+                    },
+                    {
+                      "name": "request_id",
+                      "type": "uuid.UUID | None",
+                      "description": "Optional request identity."
+                    }
+                  ],
+                  "returnType": "ButlerResult",
+                  "description": "Validates input and invokes the Butler graph."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 700,
+            "y": 200
+          }
+        },
+        {
+          "id": "request-reconcile",
+          "type": "action",
+          "title": "Reconcile backend result",
+          "description": "The result worker retrieves request status and persists completed responses.",
+          "notes": "Accepted or processing results cause retry. Completed results are reconciled locally.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/ButlerRepository.kt",
+              "name": "reconcile",
+              "containingClass": "ButlerRepository",
+              "parameters": [
+                {
+                  "name": "requestId",
+                  "type": "String",
+                  "description": "Request identifier."
+                }
+              ],
+              "returnType": "Boolean",
+              "description": "Retrieves and reconciles the backend result.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 1050,
+            "y": 200
+          }
+        },
+        {
+          "id": "request-audio",
+          "type": "condition",
+          "title": "Response audio available and enabled?",
+          "description": "Checks whether ensureAudio returns a file and whether sound settings enable responses.",
+          "notes": "Audio playback also requires a recent response. The worker checks whether the Butler message was created within the previous 600 seconds.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/sync/ButlerRequestWorkers.kt",
+              "name": "doWork",
+              "containingClass": "ButlerAudioWorker",
+              "parameters": [],
+              "returnType": "Result",
+              "description": "Obtains response audio and determines whether to offer playback.",
+              "calls": [
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/ButlerRepository.kt",
+                  "name": "ensureAudio",
+                  "containingClass": "ButlerRepository",
+                  "parameters": [
+                    {
+                      "name": "requestId",
+                      "type": "String",
+                      "description": "Response request identifier."
+                    }
+                  ],
+                  "returnType": "File?",
+                  "description": "Obtains and caches response audio."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 1400,
+            "y": 200
+          }
+        },
+        {
+          "id": "request-play",
+          "type": "action",
+          "title": "Reserve and offer response playback",
+          "description": "Creates a BUTLER_RESPONSE AudioExecution. Foreground requests may resume playback immediately; background requests are offered through AudioWorkflowScheduler.",
+          "notes": "The audio execution is reserved before playback is requested.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/sync/ButlerRequestWorkers.kt",
+              "name": "doWork",
+              "containingClass": "ButlerAudioWorker",
+              "parameters": [],
+              "returnType": "Result",
+              "description": "Prepares the response audio execution.",
+              "calls": [
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/execution/ButlerAudioPlaybackService.kt",
+                  "name": "resume",
+                  "containingClass": "ButlerAudioPlaybackService.Companion",
+                  "parameters": [
+                    {
+                      "name": "context",
+                      "type": "Context",
+                      "description": "Application context."
+                    },
+                    {
+                      "name": "id",
+                      "type": "String",
+                      "description": "Audio execution identifier."
+                    },
+                    {
+                      "name": "checkpoint",
+                      "type": "Int",
+                      "description": "Execution checkpoint."
+                    },
+                    {
+                      "name": "dueAt",
+                      "type": "Long",
+                      "description": "Expected due timestamp."
+                    }
+                  ],
+                  "returnType": "Unit",
+                  "description": "Requests playback."
+                },
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/execution/audio/AudioWorkflowScheduler.kt",
+                  "name": "offer",
+                  "containingClass": "AudioWorkflowScheduler",
+                  "parameters": [
+                    {
+                      "name": "execution",
+                      "type": "AudioExecution",
+                      "description": "Audio execution to offer."
+                    }
+                  ],
+                  "returnType": "Boolean",
+                  "description": "Offers playback through the audio workflow notification mechanism."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 1750,
+            "y": 100
+          }
+        },
+        {
+          "id": "request-complete",
+          "type": "end",
+          "title": "Response reconciled",
+          "description": "The response is stored; audio playback may have been requested separately.",
+          "notes": "Text result completion and audio playback are distinct outcomes.",
+          "links": [],
+          "position": {
+            "x": 2100,
+            "y": 200
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "b1",
+          "source": "request-input",
+          "target": "request-upload",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "b2",
+          "source": "request-upload",
+          "target": "request-backend",
+          "label": "Accepted upload",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "b3",
+          "source": "request-backend",
+          "target": "request-reconcile",
+          "label": "Result available or polling",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "b4",
+          "source": "request-reconcile",
+          "target": "request-audio",
+          "label": "Completed response",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "b5",
+          "source": "request-audio",
+          "target": "request-play",
+          "label": "Audio ready, enabled, recent",
+          "condition": {
+            "variable": "playbackEligible",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "b6",
+          "source": "request-audio",
+          "target": "request-complete",
+          "label": "No playback",
+          "condition": {
+            "variable": "playbackEligible",
+            "operator": "isFalse"
+          },
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "b7",
+          "source": "request-play",
+          "target": "request-complete",
+          "fallback": false,
+          "priority": 0
+        }
+      ],
+      "useCases": [
+        {
+          "id": "text-response",
+          "name": "Text request without playback",
+          "description": "A text request completes without response audio playback.",
+          "notes": "The response is reconciled and displayed independently of audio.",
+          "inputs": {
+            "inputSource": "text",
+            "playbackEligible": false
+          }
+        },
+        {
+          "id": "voice-response",
+          "name": "Audio request with response playback",
+          "description": "An audio request completes with recent response audio and playback enabled.",
+          "notes": "A BUTLER_RESPONSE execution is reserved.",
+          "inputs": {
+            "inputSource": "audio",
+            "playbackEligible": true
+          }
+        },
+        {
+          "id": "old-response",
+          "name": "Response too old for automatic playback",
+          "description": "The response is older than the recent-message threshold.",
+          "notes": "The worker does not create automatic response playback for an old message.",
+          "inputs": {
+            "inputSource": "text",
+            "playbackEligible": false,
+            "recent": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "nightly-planning",
+      "name": "Nightly Planning and Good Night Preparation",
+      "description": "Schedules nightly backend preparation, including Good Night Summary and next-day planning.",
+      "nodes": [
+        {
+          "id": "night-schedule",
+          "type": "trigger",
+          "title": "Schedule nightly planning",
+          "description": "Computes the next 22:30 local execution and checks whether a missed evening needs recovery.",
+          "notes": "Uses unique WorkManager requests keyed by date. Network connectivity is required.",
+          "links": [],
+          "source": {
+            "class": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/NightlyPlanSync.kt",
+              "name": "NightlyPlanSyncWorker",
+              "qualifiedName": "com.hellobutler.app.execution.NightlyPlanSyncWorker",
+              "constructorParameters": [
+                {
+                  "name": "appContext",
+                  "type": "Context",
+                  "description": "Application context."
+                },
+                {
+                  "name": "params",
+                  "type": "WorkerParameters",
+                  "description": "WorkManager parameters."
+                }
+              ],
+              "baseClasses": [
+                {
+                  "filePath": "",
+                  "name": "CoroutineWorker"
+                }
+              ],
+              "interfaces": []
+            },
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/NightlyPlanSync.kt",
+              "name": "scheduleNext",
+              "containingClass": "NightlyPlanSyncWorker.Companion",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": "Context",
+                  "description": "Android context."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Schedules the next nightly preparation and eligible missed preparation.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 200
+          }
+        },
+        {
+          "id": "night-run",
+          "type": "action",
+          "title": "Nightly worker runs",
+          "description": "Reads the requested summary date and checks the authenticated session.",
+          "notes": "The worker schedules the next run even when no session is available.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/execution/NightlyPlanSync.kt",
+              "name": "doWork",
+              "containingClass": "NightlyPlanSyncWorker",
+              "parameters": [],
+              "returnType": "Result",
+              "description": "Validates and performs nightly preparation.",
+              "calls": [
+                {
+                  "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/DailyEventRepository.kt",
+                  "name": "prepareEvening",
+                  "containingClass": "DailyEventRepository",
+                  "parameters": [
+                    {
+                      "name": "today",
+                      "type": "String",
+                      "description": "Summary date."
+                    },
+                    {
+                      "name": "tomorrow",
+                      "type": "String",
+                      "description": "Following date."
+                    }
+                  ],
+                  "returnType": "Unit",
+                  "description": "Coordinates backend evening preparation."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 350,
+            "y": 200
+          }
+        },
+        {
+          "id": "night-valid",
+          "type": "condition",
+          "title": "Session and summary date valid?",
+          "description": "Requires an authenticated session and a summary date equal to today or yesterday.",
+          "notes": "Invalid, too-old, or future dates are skipped. The next nightly run is still scheduled.",
+          "links": [],
+          "position": {
+            "x": 700,
+            "y": 200
+          }
+        },
+        {
+          "id": "night-skip",
+          "type": "end",
+          "title": "Skip preparation",
+          "description": "Schedules the next run and returns success.",
+          "notes": "No evening preparation request is made.",
+          "links": [],
+          "position": {
+            "x": 1050,
+            "y": 0
+          }
+        },
+        {
+          "id": "night-prepare",
+          "type": "action",
+          "title": "Prepare evening and tomorrow",
+          "description": "Calls DailyEventRepository.prepareEvening, which coordinates the backend evening preparation.",
+          "notes": "The repository pushes pending changes before evening preparation and checks the durable prepared-date marker.",
+          "links": [],
+          "source": {
+            "function": {
+              "filePath": "client/app/src/main/java/com/hellobutler/app/data/repository/DailyEventRepository.kt",
+              "name": "prepareEvening",
+              "containingClass": "DailyEventRepository",
+              "parameters": [
+                {
+                  "name": "today",
+                  "type": "String",
+                  "description": "Summary date in ISO format."
+                },
+                {
+                  "name": "tomorrow",
+                  "type": "String",
+                  "description": "Next date in ISO format."
+                }
+              ],
+              "returnType": "Unit",
+              "description": "Coordinates evening preparation and daily plan synchronization.",
+              "calls": []
+            }
+          },
+          "position": {
+            "x": 1050,
+            "y": 300
+          }
+        },
+        {
+          "id": "night-backend",
+          "type": "action",
+          "title": "Backend prepares summary",
+          "description": "EveningPreparationService prepares the summary using current planning context.",
+          "notes": "The backend API is POST /api/planning/evening-prepare. The service uses a user planning lock.",
+          "links": [],
+          "source": {
+            "class": {
+              "filePath": "backend/app/application/planning/evening.py",
+              "name": "EveningPreparationService",
+              "constructorParameters": [
+                {
+                  "name": "settings",
+                  "type": "Settings",
+                  "description": "Backend configuration."
+                },
+                {
+                  "name": "session_factory",
+                  "type": "async_sessionmaker[AsyncSession]",
+                  "description": "Database session factory."
+                },
+                {
+                  "name": "ai_provider",
+                  "type": "DayPlanningAIProvider",
+                  "description": "Planning AI provider."
+                },
+                {
+                  "name": "changes",
+                  "type": "DailyPlanChanges",
+                  "description": "Daily plan change publisher."
+                }
+              ],
+              "baseClasses": [],
+              "interfaces": []
+            },
+            "function": {
+              "filePath": "backend/app/application/planning/evening.py",
+              "name": "prepare",
+              "containingClass": "EveningPreparationService",
+              "parameters": [
+                {
+                  "name": "user_id",
+                  "type": "uuid.UUID",
+                  "description": "User whose evening is prepared."
+                },
+                {
+                  "name": "summary_date",
+                  "type": "date",
+                  "description": "Date to summarize."
+                }
+              ],
+              "returnType": "EveningPreparationResult",
+              "description": "Prepares and persists evening planning results.",
+              "calls": [
+                {
+                  "filePath": "backend/app/application/planning/evening.py",
+                  "name": "_load_summary_input",
+                  "containingClass": "EveningPreparationService",
+                  "parameters": [
+                    {
+                      "name": "user_id",
+                      "type": "uuid.UUID",
+                      "description": "User identifier."
+                    },
+                    {
+                      "name": "summary_date",
+                      "type": "date",
+                      "description": "Summary date."
+                    },
+                    {
+                      "name": "tomorrow",
+                      "type": "date",
+                      "description": "Following date."
+                    }
+                  ],
+                  "returnType": "tuple[GoodNightSummaryInput, str | None]",
+                  "description": "Loads context for summary generation."
+                },
+                {
+                  "filePath": "backend/app/application/planning/evening.py",
+                  "name": "_persist_summary",
+                  "containingClass": "EveningPreparationService",
+                  "parameters": [
+                    {
+                      "name": "user_id",
+                      "type": "uuid.UUID",
+                      "description": "User identifier."
+                    },
+                    {
+                      "name": "summary_date",
+                      "type": "date",
+                      "description": "Summary date."
+                    },
+                    {
+                      "name": "content",
+                      "type": "str",
+                      "description": "Generated summary content."
+                    }
+                  ],
+                  "returnType": "None",
+                  "description": "Persists summary content."
+                }
+              ]
+            }
+          },
+          "position": {
+            "x": 1400,
+            "y": 300
+          }
+        },
+        {
+          "id": "night-complete",
+          "type": "end",
+          "title": "Nightly preparation handled",
+          "description": "Schedules the next nightly run and returns success, or requests retry after a non-cancellation failure.",
+          "notes": "Future nightly scheduling is kept independent of retries for a failed date.",
+          "links": [],
+          "position": {
+            "x": 1750,
+            "y": 300
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "n1",
+          "source": "night-schedule",
+          "target": "night-run",
+          "label": "At scheduled time",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "n2",
+          "source": "night-run",
+          "target": "night-valid",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "n3",
+          "source": "night-valid",
+          "target": "night-skip",
+          "label": "Invalid or unauthenticated",
+          "condition": {
+            "variable": "validNight",
+            "operator": "isFalse"
+          },
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "n4",
+          "source": "night-valid",
+          "target": "night-prepare",
+          "label": "Valid",
+          "condition": {
+            "variable": "validNight",
+            "operator": "isTrue"
+          },
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "n5",
+          "source": "night-prepare",
+          "target": "night-backend",
+          "label": "Preparation requested",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "n6",
+          "source": "night-backend",
+          "target": "night-complete",
+          "fallback": false,
+          "priority": 0
+        }
+      ],
+      "useCases": [
+        {
+          "id": "normal-night",
+          "name": "Normal nightly preparation",
+          "description": "Authenticated user with today's valid summary date.",
+          "notes": "Prepares evening context and schedules the next nightly run.",
+          "inputs": {
+            "validNight": true,
+            "hasSession": true
+          }
+        },
+        {
+          "id": "night-logged-out",
+          "name": "No authenticated session",
+          "description": "Nightly work runs after logout.",
+          "notes": "Skips preparation and schedules the next run.",
+          "inputs": {
+            "validNight": false,
+            "hasSession": false
+          }
+        },
+        {
+          "id": "night-old-date",
+          "name": "Stale summary date",
+          "description": "The requested summary date is older than yesterday.",
+          "notes": "The worker skips this date instead of processing an unbounded backlog.",
+          "inputs": {
+            "validNight": false,
+            "hasSession": true
+          }
+        }
+      ]
+    }
+  ]
+}

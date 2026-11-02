@@ -1,8 +1,11 @@
 import {
   ChevronDown,
   ChevronRight,
+  Clipboard,
   Copy,
   Download,
+  FilePlus2,
+  FolderOpen,
   Moon,
   PanelLeftClose,
   Pencil,
@@ -10,16 +13,49 @@ import {
   Sun,
   Trash2,
   Upload,
+  Save,
   Workflow as WorkflowIcon,
 } from 'lucide-react'
 import { useRef, useState, type KeyboardEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog, type ConfirmRequest } from '@/components/ui/confirm-dialog'
+import { ImportFromTextDialog } from '@/components/panels/import-from-text-dialog'
+import { createAiInstruction } from '@/lib/storage/ai-instruction'
 import { downloadProject, parseProject } from '@/lib/storage/project-storage'
 import { cn } from '@/lib/utils'
+import { isVsCodeWebview, postHostMessage } from '@/lib/vscode/bridge'
 import { useProjectStore } from '@/stores/project-store'
 import { useUiStore } from '@/stores/ui-store'
 
+/** Compact file-action button shared by browser and VS Code modes. */
+function FooterButton({
+  icon: Icon,
+  label,
+  title,
+  onClick,
+}: {
+  icon: typeof Save
+  label: string
+  title: string
+  onClick: () => void
+}) {
+  return (
+    <Button variant="ghost" size="sm" className="justify-start" onClick={onClick} title={title}>
+      <Icon className="size-3.5 shrink-0" /> <span className="truncate">{label}</span>
+    </Button>
+  )
+}
+
+/** Copies the AI workflow-analysis prompt and reports clipboard success or failure. */
+function copyAiInstruction() {
+  const { setNotice } = useUiStore.getState()
+  void navigator.clipboard.writeText(createAiInstruction()).then(
+    () => setNotice({ kind: 'info', message: 'AI instruction copied to the clipboard.' }),
+    () => setNotice({ kind: 'error', message: 'Could not copy the AI instruction to the clipboard.' }),
+  )
+}
+
+/** Commit an inline rename once, even when Enter is followed by blur. */
 function InlineName({
   value,
   onCommit,
@@ -57,6 +93,7 @@ function InlineName({
   )
 }
 
+/** Props for a selectable workflow or use-case item in the navigation list. */
 interface RowProps {
   label: string
   active: boolean
@@ -69,8 +106,10 @@ interface RowProps {
   onDuplicate: () => void
   onDelete: () => void
   leading?: React.ReactNode
+  onToggle?: () => void
 }
 
+/** Shared workflow/use-case row; workflow rows also expose an expand control. */
 function Row({
   label,
   active,
@@ -83,36 +122,61 @@ function Row({
   onDuplicate,
   onDelete,
   leading,
+  onToggle,
 }: RowProps) {
   return (
     <div
       className={cn(
-        'group flex h-8 items-center gap-1 rounded-lg pr-1 transition-colors',
+        'group relative flex h-8 items-center gap-1 rounded-lg pr-1 transition-colors',
         nested ? 'pl-2' : 'pl-1.5',
         active
           ? 'bg-accent-soft text-foreground'
           : 'text-muted-foreground hover:bg-muted hover:text-foreground',
       )}
     >
-      {leading}
-      {editing ? (
-        <InlineName value={label} onCommit={onRename} onCancel={onCancelRename} label={`Rename ${label}`} />
-      ) : (
+      {/* Full-row hit area: padding and empty gaps now select the item too. */}
+      {!editing && (
         <button
-          className={cn(
-            'min-w-0 flex-1 cursor-pointer truncate text-left text-sm',
-            active && 'font-medium text-foreground',
-          )}
+          type="button"
+          className="absolute inset-0 z-0 w-full cursor-pointer rounded-lg text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
           onClick={onSelect}
           onDoubleClick={onStartRename}
+          aria-label={`Select ${label}`}
           aria-current={active ? 'true' : undefined}
           title={label}
+        />
+      )}
+      {/* Workflow expand/select arrow; use-case rows display a status dot instead. */}
+      {onToggle ? (
+        <button
+          className="relative z-10 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-black/5"
+          onClick={onToggle}
+          aria-label={`Toggle ${label}`}
+          aria-expanded={active}
+        >
+          {leading}
+        </button>
+      ) : (
+        <span className="relative z-10 flex shrink-0 pointer-events-none">{leading}</span>
+      )}
+      {/* Item label switches to an inline text input while renaming. */}
+      {editing ? (
+        <span className="relative z-10 flex min-w-0 flex-1">
+          <InlineName value={label} onCommit={onRename} onCancel={onCancelRename} label={`Rename ${label}`} />
+        </span>
+      ) : (
+        <span
+          className={cn(
+            'pointer-events-none relative z-10 min-w-0 flex-1 truncate text-left text-sm',
+            active && 'font-medium text-foreground',
+          )}
         >
           {label}
-        </button>
+        </span>
       )}
+      {/* Item actions: rename, duplicate, and delete. */}
       {!editing && (
-        <span className="flex opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+        <span className="relative z-10 flex opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
           <Button
             variant="ghost"
             size="icon-sm"
@@ -146,17 +210,27 @@ function Row({
   )
 }
 
+/** Main left sidebar: project header, workflow tree, file actions, and dialogs. */
 export function Sidebar() {
+  // Project data and actions shared by workflow and use-case rows.
   const store = useProjectStore()
   const { theme, toggleTheme, setLeftOpen, setNotice } = useUiStore()
+  // Tracks which row is being renamed; dialogs have their own local visibility state.
   const [editing, setEditing] = useState<string | null>(null)
   const [renamingProject, setRenamingProject] = useState(false)
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null)
+  const [textImportOpen, setTextImportOpen] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const { project, activeWorkflowId, activeUseCaseIds, saveStatus } = store
+  const { extensionActive, fileName, fileDirty } = useUiStore()
 
+  // Browser imports read local files; VS Code imports are handled by the extension host.
   const onImportFile = async (file: File | undefined) => {
     if (!file) return
+    if (isVsCodeWebview) {
+      postHostMessage({ type: 'importWorkflow' })
+      return
+    }
     const result = parseProject(await file.text())
     if (!result.ok) {
       setNotice({ kind: 'error', message: `Import failed. ${result.error}` })
@@ -173,6 +247,7 @@ export function Sidebar() {
     })
   }
 
+  // Keep destructive actions behind the same confirmation dialog.
   const askDelete = (kind: 'workflow' | 'use case', name: string, onConfirm: () => void) =>
     setConfirm({
       title: `Delete ${kind}?`,
@@ -181,12 +256,25 @@ export function Sidebar() {
       onConfirm,
     })
 
+  // Workflow and use-case renames update different collections in the project store.
+  const renameWorkflow = (id: string, name: string) => {
+    store.updateWorkflow(id, { name })
+    setEditing(null)
+  }
+
+  const renameUseCase = (id: string, name: string) => {
+    store.updateUseCase(id, { name })
+    setEditing(null)
+  }
+
   return (
     <aside className="flex h-full w-64 shrink-0 flex-col border-r bg-card" aria-label="Navigation">
+      {/* START: Sidebar header — project icon, editable project name, and collapse button. */}
       <div className="flex items-center gap-2 border-b px-3 py-3">
         <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
           <WorkflowIcon className="size-4" />
         </div>
+        {/* Project title: click to rename the current project. */}
         <div className="min-w-0 flex-1">
           {renamingProject ? (
             <InlineName
@@ -209,6 +297,7 @@ export function Sidebar() {
           )}
           <div className="text-[11px] text-muted-foreground">Workflow Studio</div>
         </div>
+        {/* Collapse the entire navigation sidebar. */}
         <Button
           variant="ghost"
           size="icon-sm"
@@ -220,7 +309,9 @@ export function Sidebar() {
         </Button>
       </div>
 
+      {/* START: Workflow navigation — lists all workflows; only the selected workflow shows its use cases. */}
       <nav className="flex-1 overflow-y-auto px-2 py-3">
+        {/* Workflow list header and the + button for creating a workflow. */}
         <div className="mb-1 flex items-center justify-between px-1.5">
           <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             Workflows
@@ -235,17 +326,20 @@ export function Sidebar() {
             <Plus className="size-3.5" />
           </Button>
         </div>
+        {/* Empty state shown when the project contains no workflows. */}
         {project.workflows.length === 0 && (
           <p className="px-1.5 py-3 text-xs text-muted-foreground">
             No workflows yet. Create one with the + button.
           </p>
         )}
+        {/* START: Workflow items — one selectable/expandable row per workflow. */}
         <ul className="space-y-0.5">
           {project.workflows.map((wf) => {
             const active = wf.id === activeWorkflowId
             const activeUseCaseId = activeUseCaseIds[wf.id]
             return (
               <li key={wf.id}>
+                {/* Workflow item: selection, rename, duplicate, delete, and expand arrow. */}
                 <Row
                   label={wf.name}
                   active={active}
@@ -258,17 +352,17 @@ export function Sidebar() {
                     )
                   }
                   onSelect={() => store.selectWorkflow(wf.id)}
+                  onToggle={() => store.selectWorkflow(wf.id)}
                   onStartRename={() => setEditing(wf.id)}
-                  onRename={(name) => {
-                    store.updateWorkflow(wf.id, { name })
-                    setEditing(null)
-                  }}
+                  onRename={(name) => renameWorkflow(wf.id, name)}
                   onCancelRename={() => setEditing(null)}
                   onDuplicate={() => store.duplicateWorkflow(wf.id)}
                   onDelete={() => askDelete('workflow', wf.name, () => store.deleteWorkflow(wf.id))}
                 />
+                {/* START: Use-case list — nested under the currently selected workflow. */}
                 {active && (
                   <div className="ml-3 mt-0.5 border-l pl-1.5">
+                    {/* Use-case header and the + button for creating a scenario. */}
                     <div className="flex items-center justify-between py-1 pl-2 pr-1">
                       <h3 className="text-[11px] font-medium text-muted-foreground">Use cases</h3>
                       <Button
@@ -281,11 +375,13 @@ export function Sidebar() {
                         <Plus className="size-3" />
                       </Button>
                     </div>
+                    {/* Empty state when the active workflow has no use cases. */}
                     {wf.useCases.length === 0 && (
                       <p className="px-2 pb-2 text-xs text-muted-foreground">
                         No use cases. Add one to simulate.
                       </p>
                     )}
+                    {/* Use-case items: select a scenario, rename it, duplicate it, or delete it. */}
                     <ul className="space-y-0.5">
                       {wf.useCases.map((uc) => (
                         <li key={uc.id}>
@@ -304,10 +400,7 @@ export function Sidebar() {
                             }
                             onSelect={() => store.selectUseCase(uc.id)}
                             onStartRename={() => setEditing(uc.id)}
-                            onRename={(name) => {
-                              store.updateUseCase(uc.id, { name })
-                              setEditing(null)
-                            }}
+                            onRename={(name) => renameUseCase(uc.id, name)}
                             onCancelRename={() => setEditing(null)}
                             onDuplicate={() => store.duplicateUseCase(uc.id)}
                             onDelete={() => askDelete('use case', uc.name, () => store.deleteUseCase(uc.id))}
@@ -317,62 +410,141 @@ export function Sidebar() {
                     </ul>
                   </div>
                 )}
+                {/* END: Use-case list. */}
               </li>
             )
           })}
         </ul>
+        {/* END: Workflow items. */}
       </nav>
+      {/* END: Workflow navigation. */}
 
-      <div className="flex items-center gap-1 border-t px-2 py-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => downloadProject(project)}
-          title="Export project as JSON"
-        >
-          <Download className="size-3.5" /> Export
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => fileRef.current?.click()}
-          title="Import project from JSON"
-        >
-          <Upload className="size-3.5" /> Import
-        </Button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="application/json,.json"
-          className="hidden"
-          aria-label="Import project file"
-          data-testid="import-input"
-          onChange={(e) => {
-            void onImportFile(e.target.files?.[0])
-            e.target.value = ''
+      {/* START: Sidebar footer — file actions, import tools, save status, and theme toggle. */}
+      <div className="space-y-1 border-t px-2 py-2">
+        {/* File action buttons: VS Code host operations or browser download/import. */}
+        <div className="grid grid-cols-2 gap-1">
+          {/* VS Code mode: open/save/save-as/export through the extension host. */}
+          {extensionActive ? (
+            <>
+              <FooterButton
+                icon={FolderOpen}
+                label="Open"
+                title="Open workflow JSON"
+                onClick={() => postHostMessage({ type: 'openWorkflow' })}
+              />
+              <FooterButton
+                icon={Save}
+                label="Save"
+                title="Save current workflow JSON"
+                onClick={() => postHostMessage({ type: 'saveWorkflow' })}
+              />
+              <FooterButton
+                icon={FilePlus2}
+                label="Save as"
+                title="Save as a new workflow JSON file"
+                onClick={() => postHostMessage({ type: 'saveWorkflowAs' })}
+              />
+              <FooterButton
+                icon={Download}
+                label="Export"
+                title="Export project as JSON"
+                onClick={() => postHostMessage({ type: 'exportWorkflow' })}
+              />
+            </>
+          ) : (
+            <>
+              {/* Browser mode: export to a download or import via the hidden file input. */}
+              <FooterButton
+                icon={Download}
+                label="Export"
+                title="Export project as JSON"
+                onClick={() => downloadProject(project)}
+              />
+              <FooterButton
+                icon={Upload}
+                label="Import"
+                title="Import project from JSON"
+                onClick={() => fileRef.current?.click()}
+              />
+            </>
+          )}
+          {/* Shared tools: import JSON pasted as text and copy the AI instruction. */}
+          <FooterButton
+            icon={Clipboard}
+            label="From text"
+            title="Import project JSON from text"
+            onClick={() => setTextImportOpen(true)}
+          />
+          <FooterButton
+            icon={Copy}
+            label="AI Instruction"
+            title="Copy an instruction for an external AI coding agent"
+            onClick={copyAiInstruction}
+          />
+        </div>
+        {/* Footer status row: hidden browser file picker, save state, and theme button. */}
+        <div className="flex items-center gap-1 pt-1">
+          {/* Hidden file input opened by the browser-mode Import button. */}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            aria-label="Import project file"
+            data-testid="import-input"
+            onChange={(e) => {
+              void onImportFile(e.target.files?.[0])
+              e.target.value = ''
+            }}
+          />
+          {/* Current file name/dirty indicator in VS Code; save status in browser. */}
+          <span
+            className={cn(
+              'mr-1 min-w-0 flex-1 truncate text-[11px]',
+              saveStatus === 'error' || fileDirty ? 'text-warning' : 'text-muted-foreground',
+            )}
+            role="status"
+            data-testid="save-status"
+            title={
+              extensionActive
+                ? `${fileName ?? 'No file open'}${fileDirty ? ' — unsaved changes' : ''}`
+                : undefined
+            }
+          >
+            {extensionActive
+              ? `${fileName ?? 'No file'}${fileDirty ? ' •' : ''}`
+              : saveStatus === 'saving'
+                ? 'Saving…'
+                : saveStatus === 'error'
+                  ? 'Not saved'
+                  : 'Saved'}
+          </span>
+          {/* Toggle between light and dark themes. */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+            title="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
+          </Button>
+        </div>
+      </div>
+      {/* END: Sidebar footer. */}
+      {/* Shared confirmation dialog for deleting items or replacing the project. */}
+      <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />
+      {/* JSON-from-text dialog; successful import replaces the current project. */}
+      {textImportOpen && (
+        <ImportFromTextDialog
+          onClose={() => setTextImportOpen(false)}
+          onImport={(incoming) => {
+            store.replaceProject(incoming)
+            setTextImportOpen(false)
+            setNotice({ kind: 'info', message: `Imported "${incoming.project.name}".` })
           }}
         />
-        <span
-          className={cn(
-            'ml-auto mr-1 text-[11px]',
-            saveStatus === 'error' ? 'text-danger' : 'text-muted-foreground',
-          )}
-          role="status"
-          data-testid="save-status"
-        >
-          {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'error' ? 'Not saved' : 'Saved'}
-        </span>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-          title="Toggle theme"
-        >
-          {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
-        </Button>
-      </div>
-      <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />
+      )}
     </aside>
   )
 }

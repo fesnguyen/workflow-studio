@@ -14,6 +14,46 @@ export const conditionSchema = z.object({
   value: inputValueSchema.optional(),
 })
 
+export const sourceFileReferenceSchema = z.object({
+  path: z.string(),
+  description: z.string().optional(),
+})
+
+export const sourceParameterSchema = z.object({
+  name: z.string(),
+  type: z.string().optional(),
+  description: z.string().optional(),
+})
+
+export const sourceSymbolReferenceSchema = z.object({
+  filePath: z.string(),
+  name: z.string(),
+  qualifiedName: z.string().optional(),
+  containingClass: z.string().optional(),
+  parameters: z.array(sourceParameterSchema).optional(),
+  returnType: z.string().optional(),
+  description: z.string().optional(),
+})
+
+export const sourceClassReferenceSchema = z.object({
+  filePath: z.string(),
+  name: z.string(),
+  qualifiedName: z.string().optional(),
+  constructorParameters: z.array(sourceParameterSchema).optional(),
+  baseClasses: z.array(sourceSymbolReferenceSchema).optional(),
+  interfaces: z.array(sourceSymbolReferenceSchema).optional(),
+})
+
+export const sourceFunctionReferenceSchema = sourceSymbolReferenceSchema.extend({
+  calls: z.array(sourceSymbolReferenceSchema).optional(),
+})
+
+export const nodeSourceSchema = z.object({
+  file: sourceFileReferenceSchema.optional(),
+  class: sourceClassReferenceSchema.optional(),
+  function: sourceFunctionReferenceSchema.optional(),
+})
+
 export const nodeSchema = z.object({
   id,
   type: nodeTypeSchema,
@@ -21,6 +61,7 @@ export const nodeSchema = z.object({
   description: z.string().default(''),
   notes: z.string().default(''),
   links: z.array(z.object({ label: z.string(), url: z.string() })).default([]),
+  source: nodeSourceSchema.optional(),
   position: z.object({ x: z.number(), y: z.number() }),
 })
 
@@ -89,6 +130,12 @@ export type InputValue = z.infer<typeof inputValueSchema>
 export type NodeType = z.infer<typeof nodeTypeSchema>
 export type Operator = z.infer<typeof operatorSchema>
 export type Condition = z.infer<typeof conditionSchema>
+export type SourceFileReference = z.infer<typeof sourceFileReferenceSchema>
+export type SourceParameter = z.infer<typeof sourceParameterSchema>
+export type SourceSymbolReference = z.infer<typeof sourceSymbolReferenceSchema>
+export type SourceClassReference = z.infer<typeof sourceClassReferenceSchema>
+export type SourceFunctionReference = z.infer<typeof sourceFunctionReferenceSchema>
+export type NodeSource = z.infer<typeof nodeSourceSchema>
 export type WorkflowNode = z.infer<typeof nodeSchema>
 export type WorkflowEdge = z.infer<typeof edgeSchema>
 export type UseCase = z.infer<typeof useCaseSchema>

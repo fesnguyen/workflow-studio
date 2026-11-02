@@ -1,3 +1,4 @@
+import { useState, type PointerEvent } from 'react'
 import { MousePointerClick, PanelRightClose } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { selectActiveWorkflow, useProjectStore } from '@/stores/project-store'
@@ -8,7 +9,24 @@ import { UseCaseProperties, WorkflowProperties } from './workflow-properties'
 
 const TITLES = { workflow: 'Workflow', useCase: 'Use case', node: 'Node', edge: 'Connection' } as const
 
+const MIN_WIDTH = 280
+const MAX_WIDTH = 800
+
 export function PropertiesPanel() {
+  const [width, setWidth] = useState(320)
+  const startResize = (event: PointerEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    const startX = event.clientX
+    const startWidth = width
+    const move = (e: globalThis.PointerEvent) =>
+      setWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + startX - e.clientX)))
+    const up = () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
   const workflow = useProjectStore(selectActiveWorkflow)
   const selection = useProjectStore((s) => s.selection)
   const locked = useSimulationStore((s) => s.sim !== null)
@@ -20,7 +38,18 @@ export function PropertiesPanel() {
     selection?.kind === 'useCase' ? workflow?.useCases.find((u) => u.id === selection.id) : undefined
 
   return (
-    <aside className="flex h-full w-80 shrink-0 flex-col border-l bg-card" aria-label="Properties">
+    <aside
+      className="relative flex h-full shrink-0 flex-col border-l bg-card"
+      style={{ width }}
+      aria-label="Properties"
+    >
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize properties panel"
+        onPointerDown={startResize}
+        className="absolute inset-y-0 -left-1 z-20 w-2 cursor-col-resize hover:bg-accent/30"
+      />
       <div className="flex h-[53px] items-center justify-between border-b px-4">
         <h2 className="text-sm font-semibold">
           {selection ? TITLES[selection.kind] : 'Properties'}{' '}

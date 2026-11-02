@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.extension.json",
+  "compilerOptions": {
+    "types": ["node", "vscode", "mocha"]
+  },
+  "include": ["test/extension/**/*.ts"]
+}

@@ -17,6 +17,30 @@ describe('project JSON', () => {
     expect(result).toEqual({ ok: true, project })
   })
 
+  it('accepts optional source metadata and keeps older project files compatible', () => {
+    const project = createDemoProject()
+    project.workflows[0]!.nodes[0]!.source = {
+      file: { path: 'src/entry.ts', description: 'Application entry point' },
+      class: {
+        filePath: 'src/entry.ts',
+        name: 'Application',
+        qualifiedName: 'App.Application',
+        constructorParameters: [{ name: 'config', type: 'Config', description: 'App settings' }],
+        baseClasses: [],
+        interfaces: [],
+      },
+      function: {
+        filePath: 'src/entry.ts',
+        name: 'start',
+        qualifiedName: 'App.Application.start',
+        parameters: [{ name: 'mode', type: 'string' }],
+        calls: [{ filePath: 'src/service.ts', name: 'run', qualifiedName: 'Service.run' }],
+      },
+    }
+    expect(parseProject(serializeProject(project))).toEqual({ ok: true, project })
+    expect(parseProject(serializeProject(createDemoProject())).ok).toBe(true)
+  })
+
   it('reports invalid JSON', () => {
     const result = parseProject('{nope')
     expect(result.ok).toBe(false)

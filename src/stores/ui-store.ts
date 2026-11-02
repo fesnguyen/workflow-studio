@@ -19,11 +19,15 @@ interface UiStore {
   rightOpen: boolean
   logOpen: boolean
   notice: { kind: 'error' | 'info'; message: string } | null
+  extensionActive: boolean
+  fileName: string | null
+  fileDirty: boolean
   toggleTheme: () => void
   setLeftOpen: (open: boolean) => void
   setRightOpen: (open: boolean) => void
   setLogOpen: (open: boolean) => void
   setNotice: (notice: UiStore['notice']) => void
+  setFileState: (fileName: string | null, fileDirty: boolean) => void
 }
 
 export const useUiStore = create<UiStore>()((set, get) => ({
@@ -32,6 +36,9 @@ export const useUiStore = create<UiStore>()((set, get) => ({
   rightOpen: true,
   logOpen: true,
   notice: null,
+  extensionActive: false,
+  fileName: null,
+  fileDirty: false,
   toggleTheme: () => {
     const theme: Theme = get().theme === 'dark' ? 'light' : 'dark'
     document.documentElement.classList.toggle('dark', theme === 'dark')
@@ -46,4 +53,5 @@ export const useUiStore = create<UiStore>()((set, get) => ({
   setRightOpen: (rightOpen) => set({ rightOpen }),
   setLogOpen: (logOpen) => set({ logOpen }),
   setNotice: (notice) => set({ notice }),
+  setFileState: (fileName, fileDirty) => set({ extensionActive: true, fileName, fileDirty }),
 }))
