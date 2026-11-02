@@ -1,0 +1,5572 @@
+{
+  "version": 1,
+  "project": {
+    "id": "workflow-studio-extension-code-flows",
+    "name": "Workflow Studio — Source-Enriched Execution Flows",
+    "description": "16 source-grounded workflows with function parameters, return types and navigable calls. No class references are invented for module-level functions or Zustand object methods."
+  },
+  "workflows": [
+    {
+      "id": "extension-activation",
+      "name": "Extension activation and editor opening",
+      "description": "VS Code command registration, single Webview panel creation, asset loading, and repeat invocation.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Extension activates",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "activate",
+              "qualifiedName": "activate",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "openEditor",
+                  "qualifiedName": "openEditor"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "navigateToSource",
+                  "qualifiedName": "navigateToSource"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": "vscode.ExtensionContext",
+                  "description": "VS Code extension activation context"
+                }
+              ],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "action",
+          "title": "Register commands",
+          "description": "Registers openEditor and navigateToSource",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "activate",
+              "qualifiedName": "activate",
+              "description": "Registers openEditor and navigateToSource",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "openEditor",
+                  "qualifiedName": "openEditor"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "navigateToSource",
+                  "qualifiedName": "navigateToSource"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": "vscode.ExtensionContext",
+                  "description": "VS Code extension activation context"
+                }
+              ],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "condition",
+          "title": "Editor already open?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 160
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "openEditor",
+              "qualifiedName": "openEditor",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "getWebviewHtml",
+                  "qualifiedName": "getWebviewHtml"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "handleMessage",
+                  "qualifiedName": "handleMessage"
+                }
+              ],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "action",
+          "title": "Reveal existing panel",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "openEditor",
+              "qualifiedName": "openEditor",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "getWebviewHtml",
+                  "qualifiedName": "getWebviewHtml"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "handleMessage",
+                  "qualifiedName": "handleMessage"
+                }
+              ],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "action",
+          "title": "Create Webview panel",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "openEditor",
+              "qualifiedName": "openEditor",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "getWebviewHtml",
+                  "qualifiedName": "getWebviewHtml"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "handleMessage",
+                  "qualifiedName": "handleMessage"
+                }
+              ],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "action",
+          "title": "Build secure Webview HTML",
+          "description": "Rewrites asset URIs and adds CSP nonce",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "getWebviewHtml",
+              "qualifiedName": "getWebviewHtml",
+              "description": "Rewrites asset URIs and adds CSP nonce",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "webview",
+                  "type": "vscode.Webview",
+                  "description": "Webview whose asset URLs and CSP are generated"
+                }
+              ],
+              "returnType": "Promise<string>"
+            }
+          }
+        },
+        {
+          "id": "n6",
+          "type": "end",
+          "title": "Editor ready",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": -160
+          }
+        },
+        {
+          "id": "n7",
+          "type": "end",
+          "title": "Existing editor focused",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2170,
+            "y": 0
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e2",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 2,
+          "label": "yes",
+          "condition": {
+            "variable": "panelExists",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e3",
+          "source": "n2",
+          "target": "n4",
+          "fallback": true,
+          "priority": 3,
+          "label": "no"
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n7",
+          "fallback": false,
+          "priority": 4
+        },
+        {
+          "id": "e5",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 5
+        },
+        {
+          "id": "e6",
+          "source": "n5",
+          "target": "n6",
+          "fallback": false,
+          "priority": 6
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "First open",
+          "description": "Creates a new panel",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "panelExists": false
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Open again",
+          "description": "Reveals existing panel",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "panelExists": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "webview-initialization",
+      "name": "Webview handshake and project synchronization",
+      "description": "React Webview establishes message bridge, receives project and file state, then propagates edits.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "React entry starts",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/main.tsx"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "action",
+          "title": "Initialize bridge",
+          "description": "Subscribe to project store and listen for host messages",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/vscode/bridge.ts"
+            },
+            "function": {
+              "filePath": "src/lib/vscode/bridge.ts",
+              "name": "startWebviewBridge",
+              "qualifiedName": "startWebviewBridge",
+              "description": "Subscribe to project store and listen for host messages",
+              "calls": [
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "store",
+                  "type": "StoreApi<ProjectStore>",
+                  "description": "Zustand store synchronized with the host"
+                }
+              ],
+              "returnType": "() => void"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "action",
+          "title": "Send ready message",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/vscode/bridge.ts"
+            },
+            "function": {
+              "filePath": "src/lib/vscode/bridge.ts",
+              "name": "postHostMessage",
+              "qualifiedName": "postHostMessage",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": "HostMessage",
+                  "description": "Typed message to the extension host"
+                }
+              ],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "action",
+          "title": "Host handles ready",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "handleMessage",
+              "qualifiedName": "handleMessage",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "postFileState",
+                  "qualifiedName": "postFileState"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "openWorkflowFile",
+                  "qualifiedName": "openWorkflowFile"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "saveWorkflow",
+                  "qualifiedName": "saveWorkflow"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "exportWorkflow",
+                  "qualifiedName": "exportWorkflow"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "importWorkflowFile",
+                  "qualifiedName": "importWorkflowFile"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "navigateToSource",
+                  "qualifiedName": "navigateToSource"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": "IncomingMessage",
+                  "description": "Message sent by the React Webview"
+                }
+              ],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "action",
+          "title": "Send projectLoaded and fileState",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "postFileState",
+              "qualifiedName": "postFileState",
+              "description": "",
+              "calls": [],
+              "parameters": [],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "condition",
+          "title": "Project payload valid?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 160
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/vscode/bridge.ts"
+            },
+            "function": {
+              "filePath": "src/lib/vscode/bridge.ts",
+              "name": "startWebviewBridge",
+              "qualifiedName": "startWebviewBridge",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "store",
+                  "type": "StoreApi<ProjectStore>",
+                  "description": "Zustand store synchronized with the host"
+                }
+              ],
+              "returnType": "() => void"
+            }
+          }
+        },
+        {
+          "id": "n6",
+          "type": "action",
+          "title": "Replace store project",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/project-store.ts"
+            },
+            "function": {
+              "filePath": "src/stores/project-store.ts",
+              "name": "replaceProject",
+              "qualifiedName": "replaceProject",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "project",
+                  "type": "ProjectFile",
+                  "description": "Replacement project document"
+                }
+              ],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n7",
+          "type": "end",
+          "title": "Webview synchronized",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2170,
+            "y": 0
+          }
+        },
+        {
+          "id": "n8",
+          "type": "end",
+          "title": "Reject invalid project",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2480,
+            "y": 160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e2",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 2
+        },
+        {
+          "id": "e3",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 3
+        },
+        {
+          "id": "e4",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 4
+        },
+        {
+          "id": "e5",
+          "source": "n5",
+          "target": "n6",
+          "fallback": false,
+          "priority": 5,
+          "label": "valid",
+          "condition": {
+            "variable": "validProject",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e6",
+          "source": "n5",
+          "target": "n8",
+          "fallback": true,
+          "priority": 6,
+          "label": "invalid"
+        },
+        {
+          "id": "e7",
+          "source": "n6",
+          "target": "n7",
+          "fallback": false,
+          "priority": 7
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Valid handshake",
+          "description": "Project loads",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "validProject": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Invalid host payload",
+          "description": "Webview shows validation notice",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "validProject": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "project-edits",
+      "name": "Workflow and node editing",
+      "description": "Create, duplicate, rename, select, edit and delete workflows/use cases/nodes through Zustand.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "User edits canvas or sidebar",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/layout/sidebar.tsx"
+            },
+            "function": {
+              "filePath": "src/components/layout/sidebar.tsx",
+              "name": "Sidebar",
+              "qualifiedName": "Sidebar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/ai-instruction.ts",
+                  "name": "createAiInstruction",
+                  "qualifiedName": "createAiInstruction"
+                },
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "condition",
+          "title": "Editing allowed?",
+          "description": "Simulation locks editing",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/canvas/canvas.tsx"
+            },
+            "function": {
+              "filePath": "src/components/canvas/canvas.tsx",
+              "name": "CanvasInner",
+              "qualifiedName": "CanvasInner",
+              "description": "Simulation locks editing",
+              "calls": [
+                {
+                  "filePath": "src/lib/workflow-engine/validate.ts",
+                  "name": "validateWorkflow",
+                  "qualifiedName": "validateWorkflow"
+                },
+                {
+                  "filePath": "src/lib/workflow-engine/graph.ts",
+                  "name": "canConnect",
+                  "qualifiedName": "canConnect"
+                }
+              ],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "action",
+          "title": "Dispatch store action",
+          "description": "Other actions include updateNode, duplicateWorkflow, deleteElements, addUseCase",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/project-store.ts"
+            },
+            "function": {
+              "filePath": "src/stores/project-store.ts",
+              "name": "addWorkflow",
+              "qualifiedName": "addWorkflow",
+              "description": "Other actions include updateNode, duplicateWorkflow, deleteElements, addUseCase",
+              "calls": [],
+              "parameters": [],
+              "returnType": "string"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "action",
+          "title": "Commit project history",
+          "description": "Coalesces history for editing",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/project-store.ts"
+            },
+            "function": {
+              "filePath": "src/stores/project-store.ts",
+              "name": "checkpoint",
+              "qualifiedName": "checkpoint",
+              "description": "Coalesces history for editing",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": "string",
+                  "description": "Undo history checkpoint grouping key"
+                }
+              ],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "action",
+          "title": "Notify host of change",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/vscode/bridge.ts"
+            },
+            "function": {
+              "filePath": "src/lib/vscode/bridge.ts",
+              "name": "startWebviewBridge",
+              "qualifiedName": "startWebviewBridge",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "store",
+                  "type": "StoreApi<ProjectStore>",
+                  "description": "Zustand store synchronized with the host"
+                }
+              ],
+              "returnType": "() => void"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "end",
+          "title": "Updated project is dirty",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 160
+          }
+        },
+        {
+          "id": "n6",
+          "type": "end",
+          "title": "Edit blocked during simulation",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": -160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1,
+          "label": "editing",
+          "condition": {
+            "variable": "editing",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e2",
+          "source": "n1",
+          "target": "n6",
+          "fallback": true,
+          "priority": 2,
+          "label": "simulation"
+        },
+        {
+          "id": "e3",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 3
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 4
+        },
+        {
+          "id": "e5",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 5
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Edit node",
+          "description": "Project update",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "editing": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Simulating",
+          "description": "Editing controls locked",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "editing": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "connect-nodes",
+      "name": "Connect nodes and enforce graph rules",
+      "description": "React Flow connection attempts are checked for node types, duplicate edges and cycles.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "User draws connection",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/canvas/canvas.tsx"
+            },
+            "function": {
+              "filePath": "src/components/canvas/canvas.tsx",
+              "name": "CanvasInner",
+              "qualifiedName": "CanvasInner",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/workflow-engine/validate.ts",
+                  "name": "validateWorkflow",
+                  "qualifiedName": "validateWorkflow"
+                },
+                {
+                  "filePath": "src/lib/workflow-engine/graph.ts",
+                  "name": "canConnect",
+                  "qualifiedName": "canConnect"
+                }
+              ],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "action",
+          "title": "Check connection constraints",
+          "description": "Reject unknown/self, end source, trigger target, duplicate, multiple noncondition outgoing and cycles",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/graph.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/graph.ts",
+              "name": "canConnect",
+              "qualifiedName": "canConnect",
+              "description": "Reject unknown/self, end source, trigger target, duplicate, multiple noncondition outgoing and cycles",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow graph"
+                },
+                {
+                  "name": "sourceId",
+                  "type": "string",
+                  "description": "Source node ID"
+                },
+                {
+                  "name": "targetId",
+                  "type": "string",
+                  "description": "Target node ID"
+                }
+              ],
+              "returnType": "ConnectionCheck"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "condition",
+          "title": "Connection valid?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 160
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/graph.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/graph.ts",
+              "name": "canConnect",
+              "qualifiedName": "canConnect",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow graph"
+                },
+                {
+                  "name": "sourceId",
+                  "type": "string",
+                  "description": "Source node ID"
+                },
+                {
+                  "name": "targetId",
+                  "type": "string",
+                  "description": "Target node ID"
+                }
+              ],
+              "returnType": "ConnectionCheck"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "action",
+          "title": "Create edge",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/project-store.ts"
+            },
+            "function": {
+              "filePath": "src/stores/project-store.ts",
+              "name": "connect",
+              "qualifiedName": "connect",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/workflow-engine/graph.ts",
+                  "name": "canConnect",
+                  "qualifiedName": "canConnect"
+                },
+                {
+                  "filePath": "src/lib/workflow-engine/graph.ts",
+                  "name": "outgoingEdges",
+                  "qualifiedName": "outgoingEdges"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": "string",
+                  "description": "Source node ID"
+                },
+                {
+                  "name": "target",
+                  "type": "string",
+                  "description": "Target node ID"
+                }
+              ],
+              "returnType": "string | null"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "end",
+          "title": "Connection added",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          }
+        },
+        {
+          "id": "n5",
+          "type": "end",
+          "title": "Connection rejected",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e2",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 2,
+          "label": "valid",
+          "condition": {
+            "variable": "valid",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e3",
+          "source": "n2",
+          "target": "n5",
+          "fallback": true,
+          "priority": 3,
+          "label": "invalid"
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 4
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Valid link",
+          "description": "Add a legal edge",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Cycle or duplicate",
+          "description": "Reject illegal edge",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "simulate-workflow",
+      "name": "Run, pause, step and reset simulation",
+      "description": "Simulation is a visual graph interpreter; it does not execute source code or call VS Code commands.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Run or step requested",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/canvas/toolbars.tsx"
+            },
+            "function": {
+              "filePath": "src/components/canvas/toolbars.tsx",
+              "name": "SimulationToolbar",
+              "qualifiedName": "SimulationToolbar",
+              "description": "",
+              "calls": [],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "action",
+          "title": "Validate and start",
+          "description": "Uses validateWorkflow; locates Trigger",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/simulation.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/simulation.ts",
+              "name": "startSimulation",
+              "qualifiedName": "startSimulation",
+              "description": "Uses validateWorkflow; locates Trigger",
+              "calls": [
+                {
+                  "filePath": "src/lib/workflow-engine/validate.ts",
+                  "name": "validateWorkflow",
+                  "qualifiedName": "validateWorkflow"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow to simulate"
+                },
+                {
+                  "name": "useCase",
+                  "type": "UseCase",
+                  "description": "Selected scenario"
+                }
+              ],
+              "returnType": "SimulationState"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "condition",
+          "title": "Validation succeeds?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 160
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/validate.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/validate.ts",
+              "name": "validateWorkflow",
+              "qualifiedName": "validateWorkflow",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow to validate"
+                }
+              ],
+              "returnType": "ValidationIssue[]"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "action",
+          "title": "Advance one node",
+          "description": "Evaluates route, updates log and visited state",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/simulation.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/simulation.ts",
+              "name": "stepSimulation",
+              "qualifiedName": "stepSimulation",
+              "description": "Evaluates route, updates log and visited state",
+              "calls": [
+                {
+                  "filePath": "src/lib/workflow-engine/simulation.ts",
+                  "name": "selectRoute",
+                  "qualifiedName": "selectRoute"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow to simulate"
+                },
+                {
+                  "name": "useCase",
+                  "type": "UseCase",
+                  "description": "Selected scenario"
+                },
+                {
+                  "name": "sim",
+                  "type": "SimulationState",
+                  "description": "Current execution state"
+                }
+              ],
+              "returnType": "SimulationState"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "condition",
+          "title": "Simulation finished?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/simulation.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/simulation.ts",
+              "name": "isFinished",
+              "qualifiedName": "isFinished",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "sim",
+                  "type": "SimulationState | null",
+                  "description": "Current simulation state"
+                }
+              ],
+              "returnType": "boolean"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "action",
+          "title": "Schedule next timer tick",
+          "description": "Timed playback via simulation store",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/simulation-store.ts"
+            },
+            "function": {
+              "filePath": "src/stores/simulation-store.ts",
+              "name": "run",
+              "qualifiedName": "run",
+              "description": "Timed playback via simulation store",
+              "calls": [
+                {
+                  "filePath": "src/lib/workflow-engine/simulation.ts",
+                  "name": "startSimulation",
+                  "qualifiedName": "startSimulation"
+                },
+                {
+                  "filePath": "src/lib/workflow-engine/simulation.ts",
+                  "name": "stepSimulation",
+                  "qualifiedName": "stepSimulation"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow to run"
+                },
+                {
+                  "name": "useCase",
+                  "type": "UseCase",
+                  "description": "Selected scenario"
+                }
+              ],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n6",
+          "type": "end",
+          "title": "Finished or next tick scheduled",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": -160
+          }
+        },
+        {
+          "id": "n7",
+          "type": "end",
+          "title": "Validation error logged",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2170,
+            "y": 0
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e2",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 2,
+          "label": "valid",
+          "condition": {
+            "variable": "valid",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e3",
+          "source": "n2",
+          "target": "n7",
+          "fallback": true,
+          "priority": 3,
+          "label": "invalid"
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 4
+        },
+        {
+          "id": "e5",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 5,
+          "label": "continue",
+          "condition": {
+            "variable": "finished",
+            "operator": "isFalse"
+          }
+        },
+        {
+          "id": "e6",
+          "source": "n4",
+          "target": "n6",
+          "fallback": true,
+          "priority": 6,
+          "label": "finished"
+        },
+        {
+          "id": "e-next",
+          "source": "n5",
+          "target": "n6",
+          "label": "next timer tick will advance again",
+          "fallback": false,
+          "priority": 99
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Happy path",
+          "description": "Valid graph reaches end",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": true,
+            "finished": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Auto run",
+          "description": "Further ticks required",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": true,
+            "finished": false
+          }
+        },
+        {
+          "id": "case-2",
+          "name": "Invalid graph",
+          "description": "Simulation fails validation",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": false,
+            "finished": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "condition-routing",
+      "name": "Conditional route evaluation",
+      "description": "Checks outgoing edges in priority order and chooses first matching condition or fallback.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Condition node reached",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/simulation.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/simulation.ts",
+              "name": "stepSimulation",
+              "qualifiedName": "stepSimulation",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/workflow-engine/simulation.ts",
+                  "name": "selectRoute",
+                  "qualifiedName": "selectRoute"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow to simulate"
+                },
+                {
+                  "name": "useCase",
+                  "type": "UseCase",
+                  "description": "Selected scenario"
+                },
+                {
+                  "name": "sim",
+                  "type": "SimulationState",
+                  "description": "Current execution state"
+                }
+              ],
+              "returnType": "SimulationState"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "action",
+          "title": "Order outgoing routes",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/graph.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/graph.ts",
+              "name": "outgoingEdges",
+              "qualifiedName": "outgoingEdges",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow graph"
+                },
+                {
+                  "name": "nodeId",
+                  "type": "string",
+                  "description": "Source node ID"
+                }
+              ],
+              "returnType": "WorkflowEdge[]"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "condition",
+          "title": "Route condition matches?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 160
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/conditions.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/conditions.ts",
+              "name": "evaluateCondition",
+              "qualifiedName": "evaluateCondition",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "condition",
+                  "type": "Condition",
+                  "description": "Route predicate"
+                },
+                {
+                  "name": "inputs",
+                  "type": "Record<string, InputValue>",
+                  "description": "Scenario variables"
+                }
+              ],
+              "returnType": "EvaluationResult"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "action",
+          "title": "Choose matching edge",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/simulation.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/simulation.ts",
+              "name": "selectRoute",
+              "qualifiedName": "selectRoute",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/workflow-engine/graph.ts",
+                  "name": "outgoingEdges",
+                  "qualifiedName": "outgoingEdges"
+                },
+                {
+                  "filePath": "src/lib/workflow-engine/conditions.ts",
+                  "name": "evaluateCondition",
+                  "qualifiedName": "evaluateCondition"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow graph"
+                },
+                {
+                  "name": "nodeId",
+                  "type": "string",
+                  "description": "Current node ID"
+                },
+                {
+                  "name": "inputs",
+                  "type": "Record<string, InputValue>",
+                  "description": "Use-case input variables"
+                }
+              ],
+              "returnType": "RouteResult"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "condition",
+          "title": "Fallback available?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/simulation.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/simulation.ts",
+              "name": "selectRoute",
+              "qualifiedName": "selectRoute",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/workflow-engine/graph.ts",
+                  "name": "outgoingEdges",
+                  "qualifiedName": "outgoingEdges"
+                },
+                {
+                  "filePath": "src/lib/workflow-engine/conditions.ts",
+                  "name": "evaluateCondition",
+                  "qualifiedName": "evaluateCondition"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow graph"
+                },
+                {
+                  "name": "nodeId",
+                  "type": "string",
+                  "description": "Current node ID"
+                },
+                {
+                  "name": "inputs",
+                  "type": "Record<string, InputValue>",
+                  "description": "Use-case input variables"
+                }
+              ],
+              "returnType": "RouteResult"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "action",
+          "title": "Choose fallback edge",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/workflow-engine/simulation.ts"
+            },
+            "function": {
+              "filePath": "src/lib/workflow-engine/simulation.ts",
+              "name": "selectRoute",
+              "qualifiedName": "selectRoute",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/workflow-engine/graph.ts",
+                  "name": "outgoingEdges",
+                  "qualifiedName": "outgoingEdges"
+                },
+                {
+                  "filePath": "src/lib/workflow-engine/conditions.ts",
+                  "name": "evaluateCondition",
+                  "qualifiedName": "evaluateCondition"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow graph"
+                },
+                {
+                  "name": "nodeId",
+                  "type": "string",
+                  "description": "Current node ID"
+                },
+                {
+                  "name": "inputs",
+                  "type": "Record<string, InputValue>",
+                  "description": "Use-case input variables"
+                }
+              ],
+              "returnType": "RouteResult"
+            }
+          }
+        },
+        {
+          "id": "n6",
+          "type": "end",
+          "title": "Route selected",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": -160
+          }
+        },
+        {
+          "id": "n7",
+          "type": "end",
+          "title": "No route / input error",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2170,
+            "y": 0
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e2",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 2,
+          "label": "match",
+          "condition": {
+            "variable": "matches",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e3",
+          "source": "n2",
+          "target": "n4",
+          "fallback": true,
+          "priority": 3,
+          "label": "no match"
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n6",
+          "fallback": false,
+          "priority": 4
+        },
+        {
+          "id": "e5",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 5,
+          "label": "fallback",
+          "condition": {
+            "variable": "fallback",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e6",
+          "source": "n4",
+          "target": "n7",
+          "fallback": true,
+          "priority": 6,
+          "label": "none"
+        },
+        {
+          "id": "e7",
+          "source": "n5",
+          "target": "n6",
+          "fallback": false,
+          "priority": 7
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Match",
+          "description": "First matching condition",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "matches": true,
+            "fallback": false
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Fallback",
+          "description": "No match but fallback exists",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "matches": false,
+            "fallback": true
+          }
+        },
+        {
+          "id": "case-2",
+          "name": "No route",
+          "description": "No match and no fallback",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "matches": false,
+            "fallback": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-project-file",
+      "name": "Open JSON project in VS Code",
+      "description": "Warns about dirty changes, selects JSON, parses/validates and replaces active project.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Open clicked",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/layout/sidebar.tsx"
+            },
+            "function": {
+              "filePath": "src/components/layout/sidebar.tsx",
+              "name": "Sidebar",
+              "qualifiedName": "Sidebar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/ai-instruction.ts",
+                  "name": "createAiInstruction",
+                  "qualifiedName": "createAiInstruction"
+                },
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "condition",
+          "title": "Unsaved changes?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "confirmDiscardChanges",
+              "qualifiedName": "confirmDiscardChanges",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "saveWorkflow",
+                  "qualifiedName": "saveWorkflow"
+                }
+              ],
+              "parameters": [],
+              "returnType": "Promise<boolean>"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "action",
+          "title": "Save/discard/cancel decision",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "confirmDiscardChanges",
+              "qualifiedName": "confirmDiscardChanges",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "saveWorkflow",
+                  "qualifiedName": "saveWorkflow"
+                }
+              ],
+              "parameters": [],
+              "returnType": "Promise<boolean>"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "condition",
+          "title": "Proceed with open?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": -160
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "openWorkflowFile",
+              "qualifiedName": "openWorkflowFile",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "confirmDiscardChanges",
+                  "qualifiedName": "confirmDiscardChanges"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "loadWorkflowFile",
+                  "qualifiedName": "loadWorkflowFile"
+                }
+              ],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "action",
+          "title": "Choose JSON file",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "openWorkflowFile",
+              "qualifiedName": "openWorkflowFile",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "confirmDiscardChanges",
+                  "qualifiedName": "confirmDiscardChanges"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "loadWorkflowFile",
+                  "qualifiedName": "loadWorkflowFile"
+                }
+              ],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "action",
+          "title": "Read and parse project",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "loadWorkflowFile",
+              "qualifiedName": "loadWorkflowFile",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "postFileState",
+                  "qualifiedName": "postFileState"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "uri",
+                  "type": "vscode.Uri",
+                  "description": "JSON project file to load"
+                }
+              ],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n6",
+          "type": "condition",
+          "title": "JSON valid?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": -160
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/storage/project-storage.ts"
+            },
+            "function": {
+              "filePath": "src/lib/storage/project-storage.ts",
+              "name": "parseProject",
+              "qualifiedName": "parseProject",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": "string",
+                  "description": "JSON project document"
+                }
+              ],
+              "returnType": "ParseResult"
+            }
+          }
+        },
+        {
+          "id": "n7",
+          "type": "action",
+          "title": "Load project and clear dirty",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2170,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "loadWorkflowFile",
+              "qualifiedName": "loadWorkflowFile",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "postFileState",
+                  "qualifiedName": "postFileState"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "uri",
+                  "type": "vscode.Uri",
+                  "description": "JSON project file to load"
+                }
+              ],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n8",
+          "type": "end",
+          "title": "Project opened",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2480,
+            "y": 160
+          }
+        },
+        {
+          "id": "n9",
+          "type": "end",
+          "title": "Cancelled or rejected",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2790,
+            "y": -160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1,
+          "label": "dirty",
+          "condition": {
+            "variable": "dirty",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e2",
+          "source": "n1",
+          "target": "n4",
+          "fallback": true,
+          "priority": 2,
+          "label": "clean"
+        },
+        {
+          "id": "e3",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 3
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 4,
+          "label": "proceed",
+          "condition": {
+            "variable": "proceed",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e5",
+          "source": "n3",
+          "target": "n9",
+          "fallback": true,
+          "priority": 5,
+          "label": "cancel"
+        },
+        {
+          "id": "e6",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 6
+        },
+        {
+          "id": "e7",
+          "source": "n5",
+          "target": "n6",
+          "fallback": false,
+          "priority": 7
+        },
+        {
+          "id": "e8",
+          "source": "n6",
+          "target": "n7",
+          "fallback": false,
+          "priority": 8,
+          "label": "valid",
+          "condition": {
+            "variable": "valid",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e9",
+          "source": "n6",
+          "target": "n9",
+          "fallback": true,
+          "priority": 9,
+          "label": "invalid"
+        },
+        {
+          "id": "e10",
+          "source": "n7",
+          "target": "n8",
+          "fallback": false,
+          "priority": 10
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Clean open",
+          "description": "Load valid JSON",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "dirty": false,
+            "proceed": true,
+            "valid": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Dirty cancel",
+          "description": "Preserve changes",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "dirty": true,
+            "proceed": false,
+            "valid": true
+          }
+        },
+        {
+          "id": "case-2",
+          "name": "Bad JSON",
+          "description": "Reject invalid project",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "dirty": false,
+            "proceed": true,
+            "valid": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "save-project",
+      "name": "Save or Save As workflow JSON",
+      "description": "Saves validated in-memory project through VS Code workspace filesystem.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Save clicked",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/layout/sidebar.tsx"
+            },
+            "function": {
+              "filePath": "src/components/layout/sidebar.tsx",
+              "name": "Sidebar",
+              "qualifiedName": "Sidebar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/ai-instruction.ts",
+                  "name": "createAiInstruction",
+                  "qualifiedName": "createAiInstruction"
+                },
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "condition",
+          "title": "Save As or no current file?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "saveWorkflow",
+              "qualifiedName": "saveWorkflow",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "postFileState",
+                  "qualifiedName": "postFileState"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "saveAs",
+                  "type": "boolean",
+                  "description": "Whether to request a new save destination"
+                }
+              ],
+              "returnType": "Promise<boolean>"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "action",
+          "title": "Show Save dialog",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "saveWorkflow",
+              "qualifiedName": "saveWorkflow",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "postFileState",
+                  "qualifiedName": "postFileState"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "saveAs",
+                  "type": "boolean",
+                  "description": "Whether to request a new save destination"
+                }
+              ],
+              "returnType": "Promise<boolean>"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "action",
+          "title": "Write JSON to URI",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "saveWorkflow",
+              "qualifiedName": "saveWorkflow",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "postFileState",
+                  "qualifiedName": "postFileState"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "saveAs",
+                  "type": "boolean",
+                  "description": "Whether to request a new save destination"
+                }
+              ],
+              "returnType": "Promise<boolean>"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "condition",
+          "title": "Write succeeds?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "saveWorkflow",
+              "qualifiedName": "saveWorkflow",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "postFileState",
+                  "qualifiedName": "postFileState"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "saveAs",
+                  "type": "boolean",
+                  "description": "Whether to request a new save destination"
+                }
+              ],
+              "returnType": "Promise<boolean>"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "action",
+          "title": "Clear dirty and update file state",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "postFileState",
+              "qualifiedName": "postFileState",
+              "description": "",
+              "calls": [],
+              "parameters": [],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n6",
+          "type": "end",
+          "title": "Saved",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": -160
+          }
+        },
+        {
+          "id": "n7",
+          "type": "end",
+          "title": "Cancelled or write error",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2170,
+            "y": 0
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1,
+          "label": "choose path",
+          "condition": {
+            "variable": "needsPath",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e2",
+          "source": "n1",
+          "target": "n3",
+          "fallback": true,
+          "priority": 2,
+          "label": "existing file"
+        },
+        {
+          "id": "e3",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 3
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 4
+        },
+        {
+          "id": "e5",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 5,
+          "label": "success",
+          "condition": {
+            "variable": "writeOk",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e6",
+          "source": "n4",
+          "target": "n7",
+          "fallback": true,
+          "priority": 6,
+          "label": "failure"
+        },
+        {
+          "id": "e7",
+          "source": "n5",
+          "target": "n6",
+          "fallback": false,
+          "priority": 7
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Existing file",
+          "description": "Write current file",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "needsPath": false,
+            "writeOk": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Save As",
+          "description": "Select a destination",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "needsPath": true,
+            "writeOk": true
+          }
+        },
+        {
+          "id": "case-2",
+          "name": "Write error",
+          "description": "Show error and remain dirty",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "needsPath": false,
+            "writeOk": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "import-json-file",
+      "name": "Import JSON file with confirmation",
+      "description": "Reads imported JSON, validates and asks to replace project; does not bind imported file as current save target.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Import file clicked",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/layout/sidebar.tsx"
+            },
+            "function": {
+              "filePath": "src/components/layout/sidebar.tsx",
+              "name": "Sidebar",
+              "qualifiedName": "Sidebar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/ai-instruction.ts",
+                  "name": "createAiInstruction",
+                  "qualifiedName": "createAiInstruction"
+                },
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "action",
+          "title": "Choose and read JSON",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "importWorkflowFile",
+              "qualifiedName": "importWorkflowFile",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "postFileState",
+                  "qualifiedName": "postFileState"
+                }
+              ],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "action",
+          "title": "Parse schema",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/storage/project-storage.ts"
+            },
+            "function": {
+              "filePath": "src/lib/storage/project-storage.ts",
+              "name": "parseProject",
+              "qualifiedName": "parseProject",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": "string",
+                  "description": "JSON project document"
+                }
+              ],
+              "returnType": "ParseResult"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "condition",
+          "title": "Valid JSON project?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": -160
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/storage/project-storage.ts"
+            },
+            "function": {
+              "filePath": "src/lib/storage/project-storage.ts",
+              "name": "parseProject",
+              "qualifiedName": "parseProject",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": "string",
+                  "description": "JSON project document"
+                }
+              ],
+              "returnType": "ParseResult"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "action",
+          "title": "Ask to replace current project",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "importWorkflowFile",
+              "qualifiedName": "importWorkflowFile",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "postFileState",
+                  "qualifiedName": "postFileState"
+                }
+              ],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "condition",
+          "title": "User confirms?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 160
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "importWorkflowFile",
+              "qualifiedName": "importWorkflowFile",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "postFileState",
+                  "qualifiedName": "postFileState"
+                }
+              ],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n6",
+          "type": "action",
+          "title": "Replace project, mark dirty",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "importWorkflowFile",
+              "qualifiedName": "importWorkflowFile",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "postFileState",
+                  "qualifiedName": "postFileState"
+                }
+              ],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n7",
+          "type": "end",
+          "title": "Imported; not saved to file",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2170,
+            "y": 0
+          }
+        },
+        {
+          "id": "n8",
+          "type": "end",
+          "title": "Cancelled or invalid",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2480,
+            "y": 160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e2",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 2
+        },
+        {
+          "id": "e3",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 3,
+          "label": "valid",
+          "condition": {
+            "variable": "valid",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n8",
+          "fallback": true,
+          "priority": 4,
+          "label": "invalid"
+        },
+        {
+          "id": "e5",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 5
+        },
+        {
+          "id": "e6",
+          "source": "n5",
+          "target": "n6",
+          "fallback": false,
+          "priority": 6,
+          "label": "confirm",
+          "condition": {
+            "variable": "confirm",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e7",
+          "source": "n5",
+          "target": "n8",
+          "fallback": true,
+          "priority": 7,
+          "label": "cancel"
+        },
+        {
+          "id": "e8",
+          "source": "n6",
+          "target": "n7",
+          "fallback": false,
+          "priority": 8
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Valid confirm",
+          "description": "Replace in-memory project",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": true,
+            "confirm": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Cancel",
+          "description": "Keep current project",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": true,
+            "confirm": false
+          }
+        },
+        {
+          "id": "case-2",
+          "name": "Invalid JSON",
+          "description": "Report error",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": false,
+            "confirm": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "import-from-text",
+      "name": "Import AI-generated JSON from text",
+      "description": "Extracts optional Markdown fence, validates, previews workflows and confirms replacement.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Import from Text clicked",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/layout/sidebar.tsx"
+            },
+            "function": {
+              "filePath": "src/components/layout/sidebar.tsx",
+              "name": "Sidebar",
+              "qualifiedName": "Sidebar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/ai-instruction.ts",
+                  "name": "createAiInstruction",
+                  "qualifiedName": "createAiInstruction"
+                },
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "action",
+          "title": "Paste and extract JSON",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/panels/import-from-text-dialog.tsx"
+            },
+            "function": {
+              "filePath": "src/components/panels/import-from-text-dialog.tsx",
+              "name": "extractJson",
+              "qualifiedName": "extractJson",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": "string",
+                  "description": "Pasted JSON or fenced Markdown"
+                }
+              ],
+              "returnType": "string"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "action",
+          "title": "Parse and validate",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/storage/project-storage.ts"
+            },
+            "function": {
+              "filePath": "src/lib/storage/project-storage.ts",
+              "name": "parseProject",
+              "qualifiedName": "parseProject",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": "string",
+                  "description": "JSON project document"
+                }
+              ],
+              "returnType": "ParseResult"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "condition",
+          "title": "Valid JSON?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": -160
+          },
+          "source": {
+            "file": {
+              "path": "src/components/panels/import-from-text-dialog.tsx"
+            },
+            "function": {
+              "filePath": "src/components/panels/import-from-text-dialog.tsx",
+              "name": "validate",
+              "qualifiedName": "validate",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "action",
+          "title": "Show project preview",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/panels/import-from-text-dialog.tsx"
+            },
+            "function": {
+              "filePath": "src/components/panels/import-from-text-dialog.tsx",
+              "name": "ImportFromTextDialog",
+              "qualifiedName": "ImportFromTextDialog",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/components/panels/import-from-text-dialog.tsx",
+                  "name": "extractJson",
+                  "qualifiedName": "extractJson"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "props",
+                  "type": "{ onClose: () => void; onImport: (project: ProjectFile) => void }",
+                  "description": "Import dialog callbacks"
+                }
+              ],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "condition",
+          "title": "Replace confirmed?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 160
+          },
+          "source": {
+            "file": {
+              "path": "src/components/panels/import-from-text-dialog.tsx"
+            },
+            "function": {
+              "filePath": "src/components/panels/import-from-text-dialog.tsx",
+              "name": "ImportFromTextDialog",
+              "qualifiedName": "ImportFromTextDialog",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/components/panels/import-from-text-dialog.tsx",
+                  "name": "extractJson",
+                  "qualifiedName": "extractJson"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "props",
+                  "type": "{ onClose: () => void; onImport: (project: ProjectFile) => void }",
+                  "description": "Import dialog callbacks"
+                }
+              ],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n6",
+          "type": "action",
+          "title": "Replace Zustand project",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/project-store.ts"
+            },
+            "function": {
+              "filePath": "src/stores/project-store.ts",
+              "name": "replaceProject",
+              "qualifiedName": "replaceProject",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "project",
+                  "type": "ProjectFile",
+                  "description": "Replacement project document"
+                }
+              ],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n7",
+          "type": "end",
+          "title": "Imported project",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2170,
+            "y": 0
+          }
+        },
+        {
+          "id": "n8",
+          "type": "end",
+          "title": "Validation error or cancelled",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2480,
+            "y": 160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e2",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 2
+        },
+        {
+          "id": "e3",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 3,
+          "label": "valid",
+          "condition": {
+            "variable": "valid",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n8",
+          "fallback": true,
+          "priority": 4,
+          "label": "invalid"
+        },
+        {
+          "id": "e5",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 5
+        },
+        {
+          "id": "e6",
+          "source": "n5",
+          "target": "n6",
+          "fallback": false,
+          "priority": 6,
+          "label": "confirm",
+          "condition": {
+            "variable": "confirm",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e7",
+          "source": "n5",
+          "target": "n8",
+          "fallback": true,
+          "priority": 7,
+          "label": "cancel"
+        },
+        {
+          "id": "e8",
+          "source": "n6",
+          "target": "n7",
+          "fallback": false,
+          "priority": 8
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Plain JSON",
+          "description": "Successful text import",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": true,
+            "confirm": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Fenced JSON",
+          "description": "Same parsing after fence extraction",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": true,
+            "confirm": true
+          }
+        },
+        {
+          "id": "case-2",
+          "name": "Bad JSON",
+          "description": "Show validation error",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": false,
+            "confirm": false
+          }
+        },
+        {
+          "id": "case-3",
+          "name": "Decline replacement",
+          "description": "Keep existing project",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "valid": true,
+            "confirm": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "export-project",
+      "name": "Export JSON without changing current file",
+      "description": "Exports a JSON snapshot to chosen path; current file and dirty state are not reset.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Export clicked",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/layout/sidebar.tsx"
+            },
+            "function": {
+              "filePath": "src/components/layout/sidebar.tsx",
+              "name": "Sidebar",
+              "qualifiedName": "Sidebar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/ai-instruction.ts",
+                  "name": "createAiInstruction",
+                  "qualifiedName": "createAiInstruction"
+                },
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "action",
+          "title": "Suggest slugged filename",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "exportWorkflow",
+              "qualifiedName": "exportWorkflow",
+              "description": "",
+              "calls": [],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "action",
+          "title": "Show save destination",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "exportWorkflow",
+              "qualifiedName": "exportWorkflow",
+              "description": "",
+              "calls": [],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "condition",
+          "title": "Destination chosen?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": -160
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "exportWorkflow",
+              "qualifiedName": "exportWorkflow",
+              "description": "",
+              "calls": [],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "action",
+          "title": "Serialize and write JSON",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "exportWorkflow",
+              "qualifiedName": "exportWorkflow",
+              "description": "",
+              "calls": [],
+              "parameters": [],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "end",
+          "title": "Exported snapshot",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 160
+          }
+        },
+        {
+          "id": "n6",
+          "type": "end",
+          "title": "Export cancelled",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": -160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e2",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 2
+        },
+        {
+          "id": "e3",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 3,
+          "label": "chosen",
+          "condition": {
+            "variable": "chosen",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n6",
+          "fallback": true,
+          "priority": 4,
+          "label": "cancel"
+        },
+        {
+          "id": "e5",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 5
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Export",
+          "description": "Write JSON snapshot",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "chosen": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Cancel",
+          "description": "No export file",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "chosen": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "source-navigation",
+      "name": "Navigate from workflow metadata to source declaration",
+      "description": "Resolves workspace-relative files; uses document symbols, then text fallback, or warns.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Source reference clicked",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/panels/source-details.tsx"
+            },
+            "function": {
+              "filePath": "src/components/panels/source-details.tsx",
+              "name": "ReferenceButton",
+              "qualifiedName": "ReferenceButton",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "props",
+                  "type": "{ reference: SourceFileReference | SourceSymbolReference; children: React.ReactNode }",
+                  "description": "Clickable source reference and label"
+                }
+              ],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "action",
+          "title": "Post navigation request",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/vscode/bridge.ts"
+            },
+            "function": {
+              "filePath": "src/lib/vscode/bridge.ts",
+              "name": "postHostMessage",
+              "qualifiedName": "postHostMessage",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": "HostMessage",
+                  "description": "Typed message to the extension host"
+                }
+              ],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "action",
+          "title": "Validate reference and resolve file",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "resolveWorkspaceFile",
+              "qualifiedName": "resolveWorkspaceFile",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": "string",
+                  "description": "Workspace-relative source file path"
+                }
+              ],
+              "returnType": "Promise<vscode.Uri | null>"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "condition",
+          "title": "File resolved?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": -160
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "resolveWorkspaceFile",
+              "qualifiedName": "resolveWorkspaceFile",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": "string",
+                  "description": "Workspace-relative source file path"
+                }
+              ],
+              "returnType": "Promise<vscode.Uri | null>"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "action",
+          "title": "Open source document",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "navigateToSource",
+              "qualifiedName": "navigateToSource",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "resolveWorkspaceFile",
+                  "qualifiedName": "resolveWorkspaceFile"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "findSymbolLocation",
+                  "qualifiedName": "findSymbolLocation"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "findTextDeclaration",
+                  "qualifiedName": "findTextDeclaration"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "reference",
+                  "type": "SourceReference",
+                  "description": "Workspace file or symbol reference"
+                }
+              ],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "condition",
+          "title": "Symbol reference?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 160
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "navigateToSource",
+              "qualifiedName": "navigateToSource",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "resolveWorkspaceFile",
+                  "qualifiedName": "resolveWorkspaceFile"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "findSymbolLocation",
+                  "qualifiedName": "findSymbolLocation"
+                },
+                {
+                  "filePath": "src/extension/extension.ts",
+                  "name": "findTextDeclaration",
+                  "qualifiedName": "findTextDeclaration"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "reference",
+                  "type": "SourceReference",
+                  "description": "Workspace file or symbol reference"
+                }
+              ],
+              "returnType": "Promise<void>"
+            }
+          }
+        },
+        {
+          "id": "n6",
+          "type": "action",
+          "title": "Find declaration via document symbols",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "findSymbolLocation",
+              "qualifiedName": "findSymbolLocation",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "document",
+                  "type": "vscode.TextDocument",
+                  "description": "Opened source document"
+                },
+                {
+                  "name": "reference",
+                  "type": "SourceSymbolReference",
+                  "description": "Target function or class symbol"
+                }
+              ],
+              "returnType": "Promise<vscode.Position | null>"
+            }
+          }
+        },
+        {
+          "id": "n7",
+          "type": "condition",
+          "title": "Symbol found?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2170,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "findSymbolLocation",
+              "qualifiedName": "findSymbolLocation",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "document",
+                  "type": "vscode.TextDocument",
+                  "description": "Opened source document"
+                },
+                {
+                  "name": "reference",
+                  "type": "SourceSymbolReference",
+                  "description": "Target function or class symbol"
+                }
+              ],
+              "returnType": "Promise<vscode.Position | null>"
+            }
+          }
+        },
+        {
+          "id": "n8",
+          "type": "action",
+          "title": "Text declaration fallback",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2480,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "findTextDeclaration",
+              "qualifiedName": "findTextDeclaration",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "document",
+                  "type": "vscode.TextDocument",
+                  "description": "Opened source document"
+                },
+                {
+                  "name": "reference",
+                  "type": "SourceSymbolReference",
+                  "description": "Target symbol to locate by text"
+                }
+              ],
+              "returnType": "vscode.Position | null"
+            }
+          }
+        },
+        {
+          "id": "n9",
+          "type": "condition",
+          "title": "Fallback found?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2790,
+            "y": -160
+          },
+          "source": {
+            "file": {
+              "path": "src/extension/extension.ts"
+            },
+            "function": {
+              "filePath": "src/extension/extension.ts",
+              "name": "findTextDeclaration",
+              "qualifiedName": "findTextDeclaration",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "document",
+                  "type": "vscode.TextDocument",
+                  "description": "Opened source document"
+                },
+                {
+                  "name": "reference",
+                  "type": "SourceSymbolReference",
+                  "description": "Target symbol to locate by text"
+                }
+              ],
+              "returnType": "vscode.Position | null"
+            }
+          }
+        },
+        {
+          "id": "n10",
+          "type": "end",
+          "title": "Open/reveal source",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 3100,
+            "y": 0
+          }
+        },
+        {
+          "id": "n11",
+          "type": "end",
+          "title": "Warn unresolved or ambiguous",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 3410,
+            "y": 160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e2",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 2
+        },
+        {
+          "id": "e3",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 3,
+          "label": "found",
+          "condition": {
+            "variable": "fileFound",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n11",
+          "fallback": true,
+          "priority": 4,
+          "label": "missing"
+        },
+        {
+          "id": "e5",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 5
+        },
+        {
+          "id": "e6",
+          "source": "n5",
+          "target": "n6",
+          "fallback": false,
+          "priority": 6,
+          "label": "symbol",
+          "condition": {
+            "variable": "symbol",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e7",
+          "source": "n5",
+          "target": "n10",
+          "fallback": true,
+          "priority": 7,
+          "label": "file only"
+        },
+        {
+          "id": "e8",
+          "source": "n6",
+          "target": "n7",
+          "fallback": false,
+          "priority": 8
+        },
+        {
+          "id": "e9",
+          "source": "n7",
+          "target": "n10",
+          "fallback": false,
+          "priority": 9,
+          "label": "found",
+          "condition": {
+            "variable": "symbolFound",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e10",
+          "source": "n7",
+          "target": "n8",
+          "fallback": true,
+          "priority": 10,
+          "label": "missing"
+        },
+        {
+          "id": "e11",
+          "source": "n8",
+          "target": "n9",
+          "fallback": false,
+          "priority": 11
+        },
+        {
+          "id": "e12",
+          "source": "n9",
+          "target": "n10",
+          "fallback": false,
+          "priority": 12,
+          "label": "found",
+          "condition": {
+            "variable": "fallbackFound",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e13",
+          "source": "n9",
+          "target": "n11",
+          "fallback": true,
+          "priority": 13,
+          "label": "missing"
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "File only",
+          "description": "Opens source file",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "fileFound": true,
+            "symbol": false,
+            "symbolFound": false,
+            "fallbackFound": false
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Symbol provider",
+          "description": "Resolves exact symbol",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "fileFound": true,
+            "symbol": true,
+            "symbolFound": true,
+            "fallbackFound": false
+          }
+        },
+        {
+          "id": "case-2",
+          "name": "Text fallback",
+          "description": "Finds declaration without provider",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "fileFound": true,
+            "symbol": true,
+            "symbolFound": false,
+            "fallbackFound": true
+          }
+        },
+        {
+          "id": "case-3",
+          "name": "Missing file",
+          "description": "Warns and does not navigate",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "fileFound": false,
+            "symbol": true,
+            "symbolFound": false,
+            "fallbackFound": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai-instruction",
+      "name": "Copy schema-derived AI workflow instruction",
+      "description": "Generates a prompt using current Zod schema, copies it to clipboard and reports result.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Copy AI Instruction clicked",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/layout/sidebar.tsx"
+            },
+            "function": {
+              "filePath": "src/components/layout/sidebar.tsx",
+              "name": "Sidebar",
+              "qualifiedName": "Sidebar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/ai-instruction.ts",
+                  "name": "createAiInstruction",
+                  "qualifiedName": "createAiInstruction"
+                },
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "action",
+          "title": "Generate instruction and JSON schema",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/storage/ai-instruction.ts"
+            },
+            "function": {
+              "filePath": "src/lib/storage/ai-instruction.ts",
+              "name": "createAiInstruction",
+              "qualifiedName": "createAiInstruction",
+              "description": "",
+              "calls": [],
+              "parameters": [],
+              "returnType": "string"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "action",
+          "title": "Write clipboard text",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/layout/sidebar.tsx"
+            },
+            "function": {
+              "filePath": "src/components/layout/sidebar.tsx",
+              "name": "Sidebar",
+              "qualifiedName": "Sidebar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/ai-instruction.ts",
+                  "name": "createAiInstruction",
+                  "qualifiedName": "createAiInstruction"
+                },
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "condition",
+          "title": "Clipboard succeeded?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": -160
+          },
+          "source": {
+            "file": {
+              "path": "src/components/layout/sidebar.tsx"
+            },
+            "function": {
+              "filePath": "src/components/layout/sidebar.tsx",
+              "name": "Sidebar",
+              "qualifiedName": "Sidebar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/ai-instruction.ts",
+                  "name": "createAiInstruction",
+                  "qualifiedName": "createAiInstruction"
+                },
+                {
+                  "filePath": "src/lib/vscode/bridge.ts",
+                  "name": "postHostMessage",
+                  "qualifiedName": "postHostMessage"
+                },
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "parseProject",
+                  "qualifiedName": "parseProject"
+                }
+              ],
+              "parameters": [],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "end",
+          "title": "Instruction copied",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          }
+        },
+        {
+          "id": "n5",
+          "type": "end",
+          "title": "Clipboard error notice",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n2",
+          "fallback": false,
+          "priority": 1
+        },
+        {
+          "id": "e2",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 2
+        },
+        {
+          "id": "e3",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 3,
+          "label": "success",
+          "condition": {
+            "variable": "copied",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n5",
+          "fallback": true,
+          "priority": 4,
+          "label": "failure"
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Clipboard works",
+          "description": "Prompt copied",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "copied": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Clipboard denied",
+          "description": "Shows error notice",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "copied": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-autosave",
+      "name": "Standalone browser autosave (development mode)",
+      "description": "Only outside VS Code, project changes are debounced and written to localStorage.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Browser React entry starts",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/main.tsx"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "condition",
+          "title": "Running in VS Code?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/main.tsx"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "action",
+          "title": "Start autosave subscription",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/autosave.ts"
+            },
+            "function": {
+              "filePath": "src/stores/autosave.ts",
+              "name": "startAutosave",
+              "qualifiedName": "startAutosave",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "saveProject",
+                  "qualifiedName": "saveProject"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "store",
+                  "type": "StoreApi<ProjectStore>",
+                  "description": "Project store to persist"
+                },
+                {
+                  "name": "delay",
+                  "type": "number",
+                  "description": "Debounce interval in milliseconds; defaults to 500"
+                }
+              ],
+              "returnType": "() => void"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "condition",
+          "title": "Project changed?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": -160
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/autosave.ts"
+            },
+            "function": {
+              "filePath": "src/stores/autosave.ts",
+              "name": "startAutosave",
+              "qualifiedName": "startAutosave",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "saveProject",
+                  "qualifiedName": "saveProject"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "store",
+                  "type": "StoreApi<ProjectStore>",
+                  "description": "Project store to persist"
+                },
+                {
+                  "name": "delay",
+                  "type": "number",
+                  "description": "Debounce interval in milliseconds; defaults to 500"
+                }
+              ],
+              "returnType": "() => void"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "action",
+          "title": "Debounce and persist",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/autosave.ts"
+            },
+            "function": {
+              "filePath": "src/stores/autosave.ts",
+              "name": "startAutosave",
+              "qualifiedName": "startAutosave",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/storage/project-storage.ts",
+                  "name": "saveProject",
+                  "qualifiedName": "saveProject"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "store",
+                  "type": "StoreApi<ProjectStore>",
+                  "description": "Project store to persist"
+                },
+                {
+                  "name": "delay",
+                  "type": "number",
+                  "description": "Debounce interval in milliseconds; defaults to 500"
+                }
+              ],
+              "returnType": "() => void"
+            }
+          }
+        },
+        {
+          "id": "n5",
+          "type": "condition",
+          "title": "Storage write succeeds?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 160
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/storage/project-storage.ts"
+            },
+            "function": {
+              "filePath": "src/lib/storage/project-storage.ts",
+              "name": "saveProject",
+              "qualifiedName": "saveProject",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "project",
+                  "type": "ProjectFile",
+                  "description": "Project to persist to browser local storage"
+                }
+              ],
+              "returnType": "SaveResult"
+            }
+          }
+        },
+        {
+          "id": "n6",
+          "type": "end",
+          "title": "Saved locally",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1860,
+            "y": -160
+          }
+        },
+        {
+          "id": "n7",
+          "type": "end",
+          "title": "Storage error shown",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2170,
+            "y": 0
+          }
+        },
+        {
+          "id": "n8",
+          "type": "end",
+          "title": "Host persistence instead",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 2480,
+            "y": 160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n8",
+          "fallback": false,
+          "priority": 1,
+          "label": "extension",
+          "condition": {
+            "variable": "extension",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e2",
+          "source": "n1",
+          "target": "n2",
+          "fallback": true,
+          "priority": 2,
+          "label": "browser"
+        },
+        {
+          "id": "e3",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 3
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 4,
+          "label": "changed",
+          "condition": {
+            "variable": "changed",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e5",
+          "source": "n3",
+          "target": "n6",
+          "fallback": true,
+          "priority": 5,
+          "label": "no change"
+        },
+        {
+          "id": "e6",
+          "source": "n4",
+          "target": "n5",
+          "fallback": false,
+          "priority": 6
+        },
+        {
+          "id": "e7",
+          "source": "n5",
+          "target": "n6",
+          "fallback": false,
+          "priority": 7,
+          "label": "success",
+          "condition": {
+            "variable": "saveOk",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e8",
+          "source": "n5",
+          "target": "n7",
+          "fallback": true,
+          "priority": 8,
+          "label": "error"
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Browser edit",
+          "description": "Autosave succeeds",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "extension": false,
+            "changed": true,
+            "saveOk": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Quota error",
+          "description": "Save error surfaced",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "extension": false,
+            "changed": true,
+            "saveOk": false
+          }
+        },
+        {
+          "id": "case-2",
+          "name": "Extension mode",
+          "description": "Browser autosave disabled",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "extension": true,
+            "changed": true,
+            "saveOk": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "auto-layout",
+      "name": "Auto-layout workflow diagram",
+      "description": "ELK layered layout computes left-to-right positions and updates project state.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Auto layout clicked",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/canvas/toolbars.tsx"
+            },
+            "function": {
+              "filePath": "src/components/canvas/toolbars.tsx",
+              "name": "EditToolbar",
+              "qualifiedName": "EditToolbar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/layout/auto-layout.ts",
+                  "name": "computeLayout",
+                  "qualifiedName": "computeLayout"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "props",
+                  "type": "EditToolbarProps",
+                  "description": "Editing toolbar properties"
+                }
+              ],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "condition",
+          "title": "Simulation locks editing?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/canvas/toolbars.tsx"
+            },
+            "function": {
+              "filePath": "src/components/canvas/toolbars.tsx",
+              "name": "EditToolbar",
+              "qualifiedName": "EditToolbar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/layout/auto-layout.ts",
+                  "name": "computeLayout",
+                  "qualifiedName": "computeLayout"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "props",
+                  "type": "EditToolbarProps",
+                  "description": "Editing toolbar properties"
+                }
+              ],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "action",
+          "title": "Compute ELK positions",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/lib/layout/auto-layout.ts"
+            },
+            "function": {
+              "filePath": "src/lib/layout/auto-layout.ts",
+              "name": "computeLayout",
+              "qualifiedName": "computeLayout",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/workflow-engine/graph.ts",
+                  "name": "outgoingEdges",
+                  "qualifiedName": "outgoingEdges"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "workflow",
+                  "type": "Workflow",
+                  "description": "Workflow to arrange left to right"
+                }
+              ],
+              "returnType": "Promise<Record<string, { x: number; y: number }>>"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "action",
+          "title": "Apply node positions",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/project-store.ts"
+            },
+            "function": {
+              "filePath": "src/stores/project-store.ts",
+              "name": "applyLayout",
+              "qualifiedName": "applyLayout",
+              "description": "",
+              "calls": [],
+              "parameters": [
+                {
+                  "name": "positions",
+                  "type": "Record<string, { x: number; y: number }>",
+                  "description": "Node positions computed by layout"
+                }
+              ],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "end",
+          "title": "Canvas fits updated layout",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          }
+        },
+        {
+          "id": "n5",
+          "type": "end",
+          "title": "Layout unavailable while simulating",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n5",
+          "fallback": false,
+          "priority": 1,
+          "label": "locked",
+          "condition": {
+            "variable": "locked",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e2",
+          "source": "n1",
+          "target": "n2",
+          "fallback": true,
+          "priority": 2,
+          "label": "editable"
+        },
+        {
+          "id": "e3",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 3
+        },
+        {
+          "id": "e4",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 4
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Editable",
+          "description": "Compute layout",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "locked": false
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Simulating",
+          "description": "Layout disabled",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "locked": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "undo-redo",
+      "name": "Undo/redo editing history",
+      "description": "Project store tracks bounded history and coalesces related edits; simulation mode disables history controls.",
+      "nodes": [
+        {
+          "id": "n0",
+          "type": "trigger",
+          "title": "Undo or redo requested",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/canvas/toolbars.tsx"
+            },
+            "function": {
+              "filePath": "src/components/canvas/toolbars.tsx",
+              "name": "EditToolbar",
+              "qualifiedName": "EditToolbar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/layout/auto-layout.ts",
+                  "name": "computeLayout",
+                  "qualifiedName": "computeLayout"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "props",
+                  "type": "EditToolbarProps",
+                  "description": "Editing toolbar properties"
+                }
+              ],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n1",
+          "type": "condition",
+          "title": "Simulation active?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 310,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/components/canvas/toolbars.tsx"
+            },
+            "function": {
+              "filePath": "src/components/canvas/toolbars.tsx",
+              "name": "EditToolbar",
+              "qualifiedName": "EditToolbar",
+              "description": "",
+              "calls": [
+                {
+                  "filePath": "src/lib/layout/auto-layout.ts",
+                  "name": "computeLayout",
+                  "qualifiedName": "computeLayout"
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "props",
+                  "type": "EditToolbarProps",
+                  "description": "Editing toolbar properties"
+                }
+              ],
+              "returnType": "React JSX element"
+            }
+          }
+        },
+        {
+          "id": "n2",
+          "type": "condition",
+          "title": "History available?",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 620,
+            "y": 160
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/project-store.ts"
+            },
+            "function": {
+              "filePath": "src/stores/project-store.ts",
+              "name": "undo",
+              "qualifiedName": "undo",
+              "description": "",
+              "calls": [],
+              "parameters": [],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n3",
+          "type": "action",
+          "title": "Restore past or future project",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 930,
+            "y": 0
+          },
+          "source": {
+            "file": {
+              "path": "src/stores/project-store.ts"
+            },
+            "function": {
+              "filePath": "src/stores/project-store.ts",
+              "name": "undo",
+              "qualifiedName": "undo",
+              "description": "",
+              "calls": [],
+              "parameters": [],
+              "returnType": "void"
+            }
+          }
+        },
+        {
+          "id": "n4",
+          "type": "end",
+          "title": "Project restored",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1240,
+            "y": 0
+          }
+        },
+        {
+          "id": "n5",
+          "type": "end",
+          "title": "No action",
+          "description": "",
+          "notes": "",
+          "links": [],
+          "position": {
+            "x": 1550,
+            "y": 160
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "source": "n0",
+          "target": "n1",
+          "fallback": false,
+          "priority": 0
+        },
+        {
+          "id": "e1",
+          "source": "n1",
+          "target": "n5",
+          "fallback": false,
+          "priority": 1,
+          "label": "active",
+          "condition": {
+            "variable": "simulating",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e2",
+          "source": "n1",
+          "target": "n2",
+          "fallback": true,
+          "priority": 2,
+          "label": "editing"
+        },
+        {
+          "id": "e3",
+          "source": "n2",
+          "target": "n3",
+          "fallback": false,
+          "priority": 3,
+          "label": "available",
+          "condition": {
+            "variable": "history",
+            "operator": "isTrue"
+          }
+        },
+        {
+          "id": "e4",
+          "source": "n2",
+          "target": "n5",
+          "fallback": true,
+          "priority": 4,
+          "label": "empty"
+        },
+        {
+          "id": "e5",
+          "source": "n3",
+          "target": "n4",
+          "fallback": false,
+          "priority": 5
+        }
+      ],
+      "useCases": [
+        {
+          "id": "case-0",
+          "name": "Undo edit",
+          "description": "Restores previous state",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "simulating": false,
+            "history": true
+          }
+        },
+        {
+          "id": "case-1",
+          "name": "Empty history",
+          "description": "No change",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "simulating": false,
+            "history": false
+          }
+        },
+        {
+          "id": "case-2",
+          "name": "Simulation",
+          "description": "Disabled",
+          "notes": "Scenario inputs model code outcomes; the simulator does not execute real VS Code operations.",
+          "inputs": {
+            "simulating": true,
+            "history": true
+          }
+        }
+      ]
+    }
+  ]
+}
